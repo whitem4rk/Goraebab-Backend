@@ -1,1 +1,1 @@
-# Goraebab-Backend
+# 고래밥🐳 Backend Repository

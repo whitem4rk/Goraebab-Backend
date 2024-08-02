@@ -1,4 +1,5 @@
-package api.goraebab.domain.remote.docker.entity;
+package api.goraebab.domain.remote.datebase.entity;
+
 
 import api.goraebab.global.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -14,9 +15,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "daemon")
+@Table(name = "storage")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Daemon extends BaseEntity {
+public class Storage extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,13 +30,28 @@ public class Daemon extends BaseEntity {
   private Integer port;
 
   @Column(nullable = false)
+  private DBMS dbms;
+
+  @Column(nullable = false)
   private String name;
 
+  @Column(nullable = false)
+  private String username;
+
+  @Column(nullable = false)
+  private String password;
+
   @Builder
-  public Daemon(String host, Integer port, String name) {
+  public Storage(Long id, String host, Integer port, DBMS dbms, String name, String username,
+      String password) {
+    this.id = id;
     this.host = host;
     this.port = port;
+    this.dbms = dbms;
     this.name = name;
+    this.username = username;
+    this.password = password;
   }
 
 }
+

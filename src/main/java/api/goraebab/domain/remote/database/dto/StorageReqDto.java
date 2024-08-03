@@ -1,6 +1,6 @@
-package api.goraebab.domain.remote.datebase.dto;
+package api.goraebab.domain.remote.database.dto;
 
-import api.goraebab.domain.remote.datebase.entity.DBMS;
+import api.goraebab.domain.remote.database.entity.DBMS;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,12 +1,12 @@
-package api.goraebab.domain.remote.datebase.service;
+package api.goraebab.domain.remote.database.service;
 
 import api.goraebab.domain.blueprint.entity.Blueprint;
 import api.goraebab.domain.blueprint.mapper.BlueprintRowMapper;
 import api.goraebab.domain.blueprint.repository.BlueprintRepository;
-import api.goraebab.domain.remote.datebase.dto.StorageReqDto;
-import api.goraebab.domain.remote.datebase.entity.Storage;
-import api.goraebab.domain.remote.datebase.mapper.StorageMapper;
-import api.goraebab.domain.remote.datebase.repository.StorageRepository;
+import api.goraebab.domain.remote.database.dto.StorageReqDto;
+import api.goraebab.domain.remote.database.entity.Storage;
+import api.goraebab.domain.remote.database.mapper.StorageMapper;
+import api.goraebab.domain.remote.database.repository.StorageRepository;
 import api.goraebab.global.util.ConnectionUtil;
 import java.util.List;
 import javax.sql.DataSource;

@@ -1,4 +1,4 @@
-package api.goraebab.domain.remote.datebase.entity;
+package api.goraebab.domain.remote.database.entity;
 
 
 import api.goraebab.global.entity.BaseEntity;

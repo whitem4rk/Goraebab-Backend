@@ -1,13 +1,13 @@
 package api.goraebab.global.util;
 
-import static api.goraebab.domain.remote.datebase.entity.DBMS.MYSQL;
-import static api.goraebab.domain.remote.datebase.entity.DBMS.ORACLE;
-import static api.goraebab.domain.remote.datebase.entity.DBMS.POSTGRESQL;
-import static api.goraebab.domain.remote.datebase.entity.DBMS.SQLSERVER;
+import static api.goraebab.domain.remote.database.entity.DBMS.MYSQL;
+import static api.goraebab.domain.remote.database.entity.DBMS.ORACLE;
+import static api.goraebab.domain.remote.database.entity.DBMS.POSTGRESQL;
+import static api.goraebab.domain.remote.database.entity.DBMS.SQLSERVER;
 
-import api.goraebab.domain.remote.datebase.dto.StorageReqDto;
-import api.goraebab.domain.remote.datebase.entity.DBMS;
-import api.goraebab.domain.remote.datebase.entity.Storage;
+import api.goraebab.domain.remote.database.dto.StorageReqDto;
+import api.goraebab.domain.remote.database.entity.DBMS;
+import api.goraebab.domain.remote.database.entity.Storage;
 import java.util.Map;
 import java.util.Objects;
 import javax.sql.DataSource;

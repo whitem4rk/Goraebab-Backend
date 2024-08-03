@@ -1,8 +1,8 @@
-package api.goraebab.domain.remote.datebase.controller;
+package api.goraebab.domain.remote.database.controller;
 
-import api.goraebab.domain.remote.datebase.dto.StorageReqDto;
-import api.goraebab.domain.remote.datebase.entity.Storage;
-import api.goraebab.domain.remote.datebase.service.StorageServiceImpl;
+import api.goraebab.domain.remote.database.dto.StorageReqDto;
+import api.goraebab.domain.remote.database.entity.Storage;
+import api.goraebab.domain.remote.database.service.StorageServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

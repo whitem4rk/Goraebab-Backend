@@ -1,7 +1,7 @@
-package api.goraebab.domain.remote.datebase.service;
+package api.goraebab.domain.remote.database.service;
 
-import api.goraebab.domain.remote.datebase.dto.StorageReqDto;
-import api.goraebab.domain.remote.datebase.entity.Storage;
+import api.goraebab.domain.remote.database.dto.StorageReqDto;
+import api.goraebab.domain.remote.database.entity.Storage;
 import java.util.List;
 
 public interface StorageService {

@@ -1,7 +1,7 @@
-package api.goraebab.domain.remote.datebase.mapper;
+package api.goraebab.domain.remote.database.mapper;
 
-import api.goraebab.domain.remote.datebase.dto.StorageReqDto;
-import api.goraebab.domain.remote.datebase.entity.Storage;
+import api.goraebab.domain.remote.database.dto.StorageReqDto;
+import api.goraebab.domain.remote.database.entity.Storage;
 
 public class StorageMapper {
 

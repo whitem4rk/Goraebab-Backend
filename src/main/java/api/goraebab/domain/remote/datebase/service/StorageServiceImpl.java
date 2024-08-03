@@ -1,6 +1,7 @@
 package api.goraebab.domain.remote.datebase.service;
 
 import api.goraebab.domain.blueprint.entity.Blueprint;
+import api.goraebab.domain.blueprint.mapper.BlueprintRowMapper;
 import api.goraebab.domain.blueprint.repository.BlueprintRepository;
 import api.goraebab.domain.remote.datebase.dto.StorageReqDto;
 import api.goraebab.domain.remote.datebase.entity.Storage;
@@ -10,7 +11,6 @@ import api.goraebab.global.util.ConnectionUtil;
 import java.util.List;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +58,7 @@ public class StorageServiceImpl implements StorageService {
     DataSource dataSource = ConnectionUtil.createDataSource(storage);
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     List<Blueprint> copiedData = jdbcTemplate.query(SELECT_ALL_BLUEPRINTS,
-        new BeanPropertyRowMapper<>(Blueprint.class));
+        new BlueprintRowMapper());
 
     blueprintRepository.saveAll(copiedData);
   }

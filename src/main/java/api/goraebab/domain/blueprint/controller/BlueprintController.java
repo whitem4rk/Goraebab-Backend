@@ -17,13 +17,14 @@ import java.util.List;
 
 @RestController
 @Tag(name = "Blueprint API")
+@RequestMapping("/database/{databaseId}")
 @RequiredArgsConstructor
 public class BlueprintController {
 
     private final BlueprintServiceImpl blueprintService;
 
     @Operation(summary = "Retrieve the list of blueprints")
-    @GetMapping("/database/{databaseId}/blueprints")
+    @GetMapping("/blueprints")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200")
     })
@@ -34,11 +35,12 @@ public class BlueprintController {
     }
 
     @Operation(summary = "Retrieve a single blueprint")
-    @GetMapping("/database/{databaseId}/blueprint/{blueprintId}")
+    @GetMapping("/blueprint/{blueprintId}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200")
     })
-    public ResponseEntity<BlueprintResDto> getBlueprint(@PathVariable Long databaseId, @PathVariable Long blueprintId) {
+    public ResponseEntity<BlueprintResDto> getBlueprint(@PathVariable Long databaseId,
+                                                        @PathVariable Long blueprintId) {
         BlueprintResDto blueprint = blueprintService.getBlueprint(databaseId, blueprintId);
 
         return ResponseEntity.ok(blueprint);
@@ -49,8 +51,34 @@ public class BlueprintController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200")
     })
-    public ResponseEntity<Void> saveBlueprint(@RequestBody @Valid BlueprintReqDto blueprintReqDto) {
-        blueprintService.saveBlueprint(blueprintReqDto);
+    public ResponseEntity<Void> saveBlueprint(@PathVariable Long databaseId,
+                                              @RequestBody @Valid BlueprintReqDto blueprintReqDto) {
+        blueprintService.saveBlueprint(databaseId, blueprintReqDto);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Modify the blueprint")
+    @PatchMapping("/blueprint/{blueprintId}/modify")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200")
+    })
+    public ResponseEntity<Void> modifyBlueprint(@PathVariable Long databaseId,
+                                                @PathVariable Long blueprintId,
+                                                @RequestBody @Valid BlueprintReqDto blueprintReqDto) {
+        blueprintService.modifyBlueprint(databaseId, blueprintId, blueprintReqDto);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Delete the blueprint")
+    @PatchMapping("/blueprint/{blueprintId}/delete")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200")
+    })
+    public ResponseEntity<Void> deleteBlueprint(@PathVariable Long databaseId,
+                                                @PathVariable Long blueprintId) {
+        blueprintService.deleteBlueprint(databaseId, blueprintId);
 
         return ResponseEntity.ok().build();
     }

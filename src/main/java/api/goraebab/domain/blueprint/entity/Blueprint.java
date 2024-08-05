@@ -1,4 +1,4 @@
-package api.goraebab.domain.remote.docker.entity;
+package api.goraebab.domain.blueprint.entity;
 
 import api.goraebab.global.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -14,28 +14,20 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "daemon")
+@Table(name = "blueprint")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Daemon extends BaseEntity {
+public class Blueprint extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @Column(nullable = false)
-  private String host;
-
-  @Column(nullable = false)
-  private Integer port;
-
-  @Column(nullable = false)
-  private String name;
+  private String data;
 
   @Builder
-  public Daemon(String host, Integer port, String name) {
-    this.host = host;
-    this.port = port;
-    this.name = name;
+  public Blueprint(String data) {
+    this.data = data;
   }
 
 }

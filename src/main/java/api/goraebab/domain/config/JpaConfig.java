@@ -1,6 +1,11 @@
 package api.goraebab.domain.config;
 
+import static api.goraebab.domain.remote.database.entity.DBMS.*;
+
+import api.goraebab.domain.remote.database.entity.DBMS;
 import jakarta.annotation.PostConstruct;
+import java.util.EnumMap;
+import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
@@ -33,6 +38,13 @@ public class JpaConfig {
   private static final String ORACLE_DIALECT = "org.hibernate.dialect.Oracle12cDialect";
   private static final String SQLSERVER_DIALECT = "org.hibernate.dialect.SQLServerDialect";
 
+  private static final EnumMap<DBMS, String> DIALECT_MAP = new EnumMap<>(Map.of(
+      MYSQL, MYSQL_DIALECT,
+      POSTGRESQL, POSTGRESQL_DIALECT,
+      ORACLE, ORACLE_DIALECT,
+      SQLSERVER, SQLSERVER_DIALECT
+  ));
+
   public JpaConfig(JpaProperties jpaProperties) {
     this.jpaProperties = jpaProperties;
   }
@@ -43,17 +55,16 @@ public class JpaConfig {
   }
 
   private void configureJpaDialect() {
-    if (datasourceUrl.contains("mysql")) {
-      jpaProperties.getProperties().put(HIBERNATE_DIALECT, MYSQL_DIALECT);
-    } else if (datasourceUrl.contains("postgresql")) {
-      jpaProperties.getProperties().put(HIBERNATE_DIALECT, POSTGRESQL_DIALECT);
-    } else if (datasourceUrl.contains("oracle")) {
-      jpaProperties.getProperties().put(HIBERNATE_DIALECT, ORACLE_DIALECT);
-    } else if (datasourceUrl.contains("sqlserver")) {
-      jpaProperties.getProperties().put(HIBERNATE_DIALECT, SQLSERVER_DIALECT);
-    } else {
-      throw new IllegalArgumentException("Unsupported Database Type");
-    }
+    DBMS datasourceType = getDatasourceType(datasourceUrl);
+    String dialect = DIALECT_MAP.get(datasourceType);
+    jpaProperties.getProperties().put(HIBERNATE_DIALECT, dialect);
+  }
+
+  private DBMS getDatasourceType(String datasourceUrl) {
+    return DIALECT_MAP.keySet().stream()
+        .filter(dbms -> datasourceUrl.toUpperCase().contains(dbms.name()))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("Unsupported Database Type: " + datasourceUrl));
   }
 
   @Bean

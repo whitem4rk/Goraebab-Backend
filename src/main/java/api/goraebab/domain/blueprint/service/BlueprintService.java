@@ -12,6 +12,10 @@ public interface BlueprintService {
 
     BlueprintResDto getBlueprint(Long storageId, Long blueprintId);
 
-    void saveBlueprint(BlueprintReqDto blueprintReqDto);
+    void saveBlueprint(Long storageId, BlueprintReqDto blueprintReqDto);
+
+    void modifyBlueprint(Long storageId, Long blueprintId, BlueprintReqDto blueprintReqDto);
+
+    void deleteBlueprint(Long storageId, Long blueprintId);
 
 }

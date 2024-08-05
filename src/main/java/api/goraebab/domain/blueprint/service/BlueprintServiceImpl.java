@@ -34,16 +34,15 @@ public class BlueprintServiceImpl implements BlueprintService {
     @Override
     @Transactional(readOnly = true)
     public BlueprintResDto getBlueprint(Long storageId, Long blueprintId) {
-        Blueprint blueprint = blueprintRepository.findByStorageIdAndId(storageId, blueprintId)
-                .orElseThrow(() -> new NotFoundException("Blueprint not found"));
+        Blueprint blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
 
         return BlueprintMapper.INSTANCE.toBlueprintResDto(blueprint);
     }
 
     @Override
     @Transactional
-    public void saveBlueprint(BlueprintReqDto blueprintReqDto) {
-        Storage storage = storageRepository.findById(blueprintReqDto.getStorageId())
+    public void saveBlueprint(Long storageId, BlueprintReqDto blueprintReqDto) {
+        Storage storage = storageRepository.findById(storageId)
                 .orElseThrow(() -> new NotFoundException("Storage not found"));
 
         Blueprint blueprint = Blueprint.builder()
@@ -54,6 +53,27 @@ public class BlueprintServiceImpl implements BlueprintService {
 
         blueprint.setAsLocal();
         blueprintRepository.save(blueprint);
+    }
+
+    @Override
+    @Transactional
+    public void modifyBlueprint(Long storageId, Long blueprintId, BlueprintReqDto blueprintReqDto) {
+        Blueprint blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
+        blueprint.modify(blueprintReqDto.getName(), blueprintReqDto.getData());
+
+        blueprintRepository.save(blueprint);
+    }
+
+    @Override
+    public void deleteBlueprint(Long storageId, Long blueprintId) {
+        Blueprint blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
+
+        blueprintRepository.delete(blueprint);
+    }
+
+    private Blueprint findBlueprintByStorageAndId(Long storageId, Long blueprintId) {
+        return blueprintRepository.findByStorageIdAndId(storageId, blueprintId)
+                .orElseThrow(() -> new NotFoundException("Blueprint not found"));
     }
 
 }

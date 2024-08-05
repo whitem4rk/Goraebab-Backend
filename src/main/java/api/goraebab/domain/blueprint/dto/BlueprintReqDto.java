@@ -11,10 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BlueprintReqDto {
 
-    @NotNull(message = "Storage ID must not be null")
-    @Positive(message = "Storage ID must be a positive number")
-    private Long storageId;
-
     @NotBlank(message = "Name must not be blank")
     @Size(max = 255, message = "Name must be less than 255 characters")
     private String name;

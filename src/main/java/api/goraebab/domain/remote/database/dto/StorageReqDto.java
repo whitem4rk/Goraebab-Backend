@@ -1,6 +1,7 @@
 package api.goraebab.domain.remote.database.dto;
 
 import api.goraebab.domain.remote.database.entity.DBMS;
+import api.goraebab.global.util.validator.ValidEnum;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,7 +28,7 @@ public class StorageReqDto {
   @Max(value = 65535, message = "Port must be 1 ~ 65535")
   private Integer port;
 
-  @NotBlank
+  @ValidEnum(target = DBMS.class)
   private DBMS dbms;
 
   @NotBlank

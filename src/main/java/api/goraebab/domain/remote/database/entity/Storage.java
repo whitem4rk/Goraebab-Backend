@@ -4,6 +4,8 @@ package api.goraebab.domain.remote.database.entity;
 import api.goraebab.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,6 +32,7 @@ public class Storage extends BaseEntity {
   private Integer port;
 
   @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   private DBMS dbms;
 
   @Column(nullable = false)

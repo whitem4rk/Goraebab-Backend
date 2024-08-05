@@ -4,6 +4,7 @@ import api.goraebab.domain.blueprint.entity.Blueprint;
 import api.goraebab.domain.blueprint.mapper.BlueprintRowMapper;
 import api.goraebab.domain.blueprint.repository.BlueprintRepository;
 import api.goraebab.domain.remote.database.dto.StorageReqDto;
+import api.goraebab.domain.remote.database.dto.StorageResDto;
 import api.goraebab.domain.remote.database.entity.Storage;
 import api.goraebab.domain.remote.database.mapper.StorageMapper;
 import api.goraebab.domain.remote.database.repository.StorageRepository;
@@ -28,8 +29,9 @@ public class StorageServiceImpl implements StorageService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<Storage> getStorages() {
-    return storageRepository.findAll();
+  public List<StorageResDto> getStorages() {
+    List<Storage> storageList = storageRepository.findAll();
+    return StorageMapper.INSTANCE.entityListToResDtoList(storageList);
   }
 
   @Override
@@ -39,14 +41,14 @@ public class StorageServiceImpl implements StorageService {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     jdbcTemplate.queryForList(SELECT_ALL_STORAGES);
 
-    Storage storage = StorageMapper.toEntity(storageReqDto);
+    Storage storage = StorageMapper.INSTANCE.reqDtoToEntity(storageReqDto);
     storageRepository.save(storage);
   }
 
   @Override
   @Transactional
-  public void deleteStorage(Long daemonId) {
-    storageRepository.deleteById(daemonId);
+  public void deleteStorage(Long storageId) {
+    storageRepository.deleteById(storageId);
   }
 
   @Override

@@ -1,7 +1,7 @@
 package api.goraebab.domain.remote.database.controller;
 
 import api.goraebab.domain.remote.database.dto.StorageReqDto;
-import api.goraebab.domain.remote.database.entity.Storage;
+import api.goraebab.domain.remote.database.dto.StorageResDto;
 import api.goraebab.domain.remote.database.service.StorageServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,12 +31,12 @@ public class StorageController {
   @GetMapping("/remote/storages")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", content = {
-          @Content(schema = @Schema(implementation = Storage.class))}),
+          @Content(schema = @Schema(implementation = StorageResDto.class))}),
   })
-  public ResponseEntity<List<Storage>> loadStorages() {
-    List<Storage> storageList = storageServiceImpl.getStorages();
+  public ResponseEntity<List<StorageResDto>> loadStorages() {
+    List<StorageResDto> storageResDtoListList = storageServiceImpl.getStorages();
 
-    return ResponseEntity.ok(storageList);
+    return ResponseEntity.ok(storageResDtoListList);
   }
 
     @Operation(summary = "Connect and save remote storage in database")

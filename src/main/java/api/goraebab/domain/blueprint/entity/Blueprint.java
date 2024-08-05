@@ -40,6 +40,15 @@ public class Blueprint extends BaseEntity {
     this.isRemote = false;
   }
 
+  public void modify(String name, String data) {
+    if (name != null) {
+      this.name = name;
+    }
+    if (data != null) {
+      this.data = data;
+    }
+  }
+
   @Builder
   public Blueprint(String name, String data, Storage storage) {
     this.name = name;

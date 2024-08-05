@@ -62,6 +62,9 @@ public class StorageServiceImpl implements StorageService {
     List<Blueprint> copiedData = jdbcTemplate.query(SELECT_ALL_BLUEPRINTS,
         new BlueprintRowMapper());
 
+    copiedData.forEach(Blueprint::setAsRemote);
+
     blueprintRepository.saveAll(copiedData);
   }
+
 }

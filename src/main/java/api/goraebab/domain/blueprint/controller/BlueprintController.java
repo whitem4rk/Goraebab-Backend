@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "Blueprint API")
-@RequestMapping("/database/{databaseId}")
+@RequestMapping("/storage/{storageId}")
 @RequiredArgsConstructor
 public class BlueprintController {
 
@@ -28,8 +28,8 @@ public class BlueprintController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200")
     })
-    public ResponseEntity<List<BlueprintsResDto>> getBlueprints(@PathVariable Long databaseId) {
-        List<BlueprintsResDto> blueprints = blueprintService.getBlueprints(databaseId);
+    public ResponseEntity<List<BlueprintsResDto>> getBlueprints(@PathVariable Long storageId) {
+        List<BlueprintsResDto> blueprints = blueprintService.getBlueprints(storageId);
 
         return ResponseEntity.ok(blueprints);
     }
@@ -39,46 +39,46 @@ public class BlueprintController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200")
     })
-    public ResponseEntity<BlueprintResDto> getBlueprint(@PathVariable Long databaseId,
+    public ResponseEntity<BlueprintResDto> getBlueprint(@PathVariable Long storageId,
                                                         @PathVariable Long blueprintId) {
-        BlueprintResDto blueprint = blueprintService.getBlueprint(databaseId, blueprintId);
+        BlueprintResDto blueprint = blueprintService.getBlueprint(storageId, blueprintId);
 
         return ResponseEntity.ok(blueprint);
     }
 
     @Operation(summary = "Save the blueprint to the local database")
-    @PostMapping("/blueprint/save")
+    @PostMapping("/blueprint")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200")
     })
-    public ResponseEntity<Void> saveBlueprint(@PathVariable Long databaseId,
+    public ResponseEntity<Void> saveBlueprint(@PathVariable Long storageId,
                                               @RequestBody @Valid BlueprintReqDto blueprintReqDto) {
-        blueprintService.saveBlueprint(databaseId, blueprintReqDto);
+        blueprintService.saveBlueprint(storageId, blueprintReqDto);
 
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Modify the blueprint")
-    @PatchMapping("/blueprint/{blueprintId}/modify")
+    @PatchMapping("/blueprint/{blueprintId}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200")
     })
-    public ResponseEntity<Void> modifyBlueprint(@PathVariable Long databaseId,
+    public ResponseEntity<Void> modifyBlueprint(@PathVariable Long storageId,
                                                 @PathVariable Long blueprintId,
                                                 @RequestBody @Valid BlueprintReqDto blueprintReqDto) {
-        blueprintService.modifyBlueprint(databaseId, blueprintId, blueprintReqDto);
+        blueprintService.modifyBlueprint(storageId, blueprintId, blueprintReqDto);
 
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Delete the blueprint")
-    @PatchMapping("/blueprint/{blueprintId}/delete")
+    @DeleteMapping("/blueprint/{blueprintId}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200")
     })
-    public ResponseEntity<Void> deleteBlueprint(@PathVariable Long databaseId,
+    public ResponseEntity<Void> deleteBlueprint(@PathVariable Long storageId,
                                                 @PathVariable Long blueprintId) {
-        blueprintService.deleteBlueprint(databaseId, blueprintId);
+        blueprintService.deleteBlueprint(storageId, blueprintId);
 
         return ResponseEntity.ok().build();
     }

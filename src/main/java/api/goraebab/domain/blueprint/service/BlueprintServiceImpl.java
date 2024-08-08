@@ -51,7 +51,6 @@ public class BlueprintServiceImpl implements BlueprintService {
                 .storage(storage)
                 .build();
 
-        blueprint.setAsLocal();
         blueprintRepository.save(blueprint);
     }
 
@@ -65,6 +64,7 @@ public class BlueprintServiceImpl implements BlueprintService {
     }
 
     @Override
+    @Transactional
     public void deleteBlueprint(Long storageId, Long blueprintId) {
         Blueprint blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
 

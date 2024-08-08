@@ -1,11 +1,13 @@
 package api.goraebab.domain.blueprint.dto;
 
 import api.goraebab.domain.remote.database.dto.StorageResDto;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@NoArgsConstructor
 public class BlueprintResDto extends BlueprintsResDto {
 
     private StorageResDto storageInfo;

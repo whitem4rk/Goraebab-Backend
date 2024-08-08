@@ -26,7 +26,7 @@ public class Blueprint extends BaseEntity {
   private String data;
 
   @Column(nullable = false)
-  private Boolean isRemote;
+  private Boolean isRemote = false;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "storage_id")
@@ -34,10 +34,6 @@ public class Blueprint extends BaseEntity {
 
   public void setAsRemote() {
     this.isRemote = true;
-  }
-
-  public void setAsLocal() {
-    this.isRemote = false;
   }
 
   public void modify(String name, String data) {

@@ -8,10 +8,11 @@ import api.goraebab.domain.blueprint.mapper.BlueprintMapper;
 import api.goraebab.domain.blueprint.repository.BlueprintRepository;
 import api.goraebab.domain.remote.database.entity.Storage;
 import api.goraebab.domain.remote.database.repository.StorageRepository;
+import api.goraebab.global.exception.CustomException;
+import api.goraebab.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.webjars.NotFoundException;
 
 import java.util.List;
 
@@ -26,6 +27,9 @@ public class BlueprintServiceImpl implements BlueprintService {
     @Transactional(readOnly = true)
     public List<BlueprintsResDto> getBlueprints(Long storageId) {
         List<Blueprint> blueprints = blueprintRepository.findByStorageId(storageId);
+        if(blueprints.isEmpty()) {
+            throw new CustomException(ErrorCode.NOT_FOUND_VALUE);
+        }
 
         return BlueprintMapper.INSTANCE.toBlueprintsResDtoList(blueprints);
 
@@ -39,11 +43,12 @@ public class BlueprintServiceImpl implements BlueprintService {
         return BlueprintMapper.INSTANCE.toBlueprintResDto(blueprint);
     }
 
+
     @Override
     @Transactional
     public void saveBlueprint(Long storageId, BlueprintReqDto blueprintReqDto) {
         Storage storage = storageRepository.findById(storageId)
-                .orElseThrow(() -> new NotFoundException("Storage not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
 
         Blueprint blueprint = Blueprint.builder()
                 .name(blueprintReqDto.getName())
@@ -73,7 +78,7 @@ public class BlueprintServiceImpl implements BlueprintService {
 
     private Blueprint findBlueprintByStorageAndId(Long storageId, Long blueprintId) {
         return blueprintRepository.findByStorageIdAndId(storageId, blueprintId)
-                .orElseThrow(() -> new NotFoundException("Blueprint not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
     }
 
 }

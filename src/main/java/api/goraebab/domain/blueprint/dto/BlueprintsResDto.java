@@ -19,8 +19,8 @@ public class BlueprintsResDto {
 
     private Boolean isRemote;
 
-    private LocalDateTime createdDate;
+    private LocalDateTime dateCreated;
 
-    private LocalDateTime updatedDate;
+    private LocalDateTime dateUpdated;
 
 }

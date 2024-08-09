@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StorageResDto {
 
+  private Long storageId;
+
   private String host;
 
   private Integer port;
@@ -21,7 +23,8 @@ public class StorageResDto {
 
 
   @Builder
-  public StorageResDto(String host, Integer port, DBMS dbms, String name, String username) {
+  public StorageResDto(Long storageId, String host, Integer port, DBMS dbms, String name, String username) {
+    this.storageId = storageId;
     this.host = host;
     this.port = port;
     this.dbms = dbms;

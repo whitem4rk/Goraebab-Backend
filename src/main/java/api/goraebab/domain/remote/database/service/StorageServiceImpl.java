@@ -8,6 +8,8 @@ import api.goraebab.domain.remote.database.dto.StorageResDto;
 import api.goraebab.domain.remote.database.entity.Storage;
 import api.goraebab.domain.remote.database.mapper.StorageMapper;
 import api.goraebab.domain.remote.database.repository.StorageRepository;
+import api.goraebab.global.exception.CustomException;
+import api.goraebab.global.exception.ErrorCode;
 import api.goraebab.global.util.ConnectionUtil;
 import java.util.List;
 import javax.sql.DataSource;
@@ -55,7 +57,7 @@ public class StorageServiceImpl implements StorageService {
   @Transactional
   public void copyStorage(Long storageId) {
     Storage storage = storageRepository.findById(storageId)
-        .orElseThrow(() -> new NotFoundException("Storage not found"));
+        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
 
     DataSource dataSource = ConnectionUtil.createDataSource(storage);
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);

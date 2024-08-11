@@ -11,7 +11,6 @@ import api.goraebab.domain.remote.database.entity.Storage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import javax.sql.DataSource;
@@ -20,6 +19,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 public class ConnectionUtil {
+
+  private static final RestTemplate restTemplate = new RestTemplate();
 
   private static final String DOCKER_PING_URL = "http://%s:%d/_ping";
   private static final String DOCKER_OK_RESPONSE_BODY = "OK";
@@ -70,7 +71,6 @@ public class ConnectionUtil {
   public static boolean testDockerPing(String host, int port) {
     String requestUrl = String.format(DOCKER_PING_URL, host, port);
     try {
-      RestTemplate restTemplate = new RestTemplate();
       String response = restTemplate.getForObject(requestUrl, String.class);
       return Objects.equals(response, DOCKER_OK_RESPONSE_BODY);
     } catch (RestClientException e) {
@@ -81,7 +81,6 @@ public class ConnectionUtil {
   public static boolean testHarborPing(String host, int port) {
     String requestUrl = String.format(HARBOR_PING_URL, host, port);
     try {
-      RestTemplate restTemplate = new RestTemplate();
       String response = restTemplate.getForObject(requestUrl, String.class);
       return Objects.equals(response, HARBOR_OK_RESPONSE_BODY);
     } catch (RestClientException e) {
@@ -91,11 +90,10 @@ public class ConnectionUtil {
 
   public static void harborLogin(String host, int port, String username, String password) {
     final String[] command = {
-        "docker", "login", host+":"+port,
-        "--username="+username,
-        "--password="+password
+        "docker", "login", host + ":" + port,
+        "--username=" + username,
+        "--password=" + password
     };
-    System.out.println(Arrays.toString(command));
     try {
       ProcessBuilder processBuilder = new ProcessBuilder(command);
       processBuilder.redirectErrorStream(true);

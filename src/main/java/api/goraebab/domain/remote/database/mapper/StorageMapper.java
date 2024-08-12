@@ -5,6 +5,7 @@ import api.goraebab.domain.remote.database.dto.StorageResDto;
 import api.goraebab.domain.remote.database.entity.Storage;
 import java.util.List;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -14,6 +15,7 @@ public interface StorageMapper {
 
   Storage reqDtoToEntity(StorageReqDto storageReqDto);
 
+  @Mapping(source = "id", target = "storageId")
   StorageResDto entityToResDto(Storage storage);
 
   List<StorageResDto> entityListToResDtoList(List<Storage> storageList);

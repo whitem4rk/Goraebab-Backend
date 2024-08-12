@@ -24,7 +24,7 @@ public class DaemonServiceImpl implements DaemonService {
 
   @Override
   public void connectDaemon(DaemonReqDto daemonReqDto) {
-    boolean connected = ConnectionUtil.testPing(daemonReqDto.getHost(), daemonReqDto.getPort());
+    boolean connected = ConnectionUtil.testDockerPing(daemonReqDto.getHost(), daemonReqDto.getPort());
     if (connected) {
       Daemon daemon = DaemonMapper.toEntity(daemonReqDto);
       daemonRepository.save(daemon);

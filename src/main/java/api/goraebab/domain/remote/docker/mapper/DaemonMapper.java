@@ -1,16 +1,23 @@
 package api.goraebab.domain.remote.docker.mapper;
 
 import api.goraebab.domain.remote.docker.dto.DaemonReqDto;
+import api.goraebab.domain.remote.docker.dto.DaemonResDto;
 import api.goraebab.domain.remote.docker.entity.Daemon;
+import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
-public class DaemonMapper {
+@Mapper
+public interface DaemonMapper {
 
-  public static Daemon toEntity(DaemonReqDto daemonReqDto) {
-    return Daemon.builder()
-        .host(daemonReqDto.getHost())
-        .port(daemonReqDto.getPort())
-        .name(daemonReqDto.getName())
-        .build();
-  }
+  DaemonMapper INSTANCE = Mappers.getMapper(DaemonMapper.class);
+
+  Daemon reqDtoToEntity(DaemonReqDto daemonReqDto);
+
+  @Mapping(source = "id", target = "daemonId")
+  DaemonResDto entityToResDto(Daemon daemon);
+
+  List<DaemonResDto> entityListToResDtoList(List<Daemon> daemonList);
 
 }

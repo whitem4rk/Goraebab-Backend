@@ -1,7 +1,7 @@
 package api.goraebab.domain.remote.docker.controller;
 
 import api.goraebab.domain.remote.docker.dto.DaemonReqDto;
-import api.goraebab.domain.remote.docker.entity.Daemon;
+import api.goraebab.domain.remote.docker.dto.DaemonResDto;
 import api.goraebab.domain.remote.docker.service.DaemonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,10 +31,10 @@ public class DaemonController {
   @GetMapping("/remote/daemons")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", content = {
-      @Content(schema = @Schema(implementation = Daemon.class))}),
+      @Content(schema = @Schema(implementation = DaemonResDto.class))}),
   })
-  public ResponseEntity<List<Daemon>> loadDaemons() {
-    List<Daemon> daemonList = daemonService.getDaemons();
+  public ResponseEntity<List<DaemonResDto>> loadDaemons() {
+    List<DaemonResDto> daemonList = daemonService.getDaemons();
 
     return ResponseEntity.ok(daemonList);
   }

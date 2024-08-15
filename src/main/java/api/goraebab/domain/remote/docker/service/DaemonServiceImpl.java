@@ -1,6 +1,7 @@
 package api.goraebab.domain.remote.docker.service;
 
 import api.goraebab.domain.remote.docker.dto.DaemonReqDto;
+import api.goraebab.domain.remote.docker.dto.DaemonResDto;
 import api.goraebab.domain.remote.docker.entity.Daemon;
 import api.goraebab.domain.remote.docker.mapper.DaemonMapper;
 import api.goraebab.domain.remote.docker.repository.DaemonRepository;
@@ -18,15 +19,16 @@ public class DaemonServiceImpl implements DaemonService {
   private final DaemonRepository daemonRepository;
 
   @Override
-  public List<Daemon> getDaemons() {
-    return daemonRepository.findAll();
+  public List<DaemonResDto> getDaemons() {
+    List<Daemon> daemonList = daemonRepository.findAll();
+    return DaemonMapper.INSTANCE.entityListToResDtoList(daemonList);
   }
 
   @Override
   public void connectDaemon(DaemonReqDto daemonReqDto) {
     boolean connected = ConnectionUtil.testDockerPing(daemonReqDto.getHost(), daemonReqDto.getPort());
     if (connected) {
-      Daemon daemon = DaemonMapper.toEntity(daemonReqDto);
+      Daemon daemon = DaemonMapper.INSTANCE.reqDtoToEntity(daemonReqDto);
       daemonRepository.save(daemon);
     } else {
       throw new CustomException(ErrorCode.CONNECTION_FAILED);

@@ -45,9 +45,8 @@ public class Storage extends BaseEntity {
   private String password;
 
   @Builder
-  public Storage(Long id, String host, Integer port, DBMS dbms, String name, String username,
+  public Storage(String host, Integer port, DBMS dbms, String name, String username,
       String password) {
-    this.id = id;
     this.host = host;
     this.port = port;
     this.dbms = dbms;

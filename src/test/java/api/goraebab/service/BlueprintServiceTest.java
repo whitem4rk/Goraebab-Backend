@@ -1,5 +1,15 @@
 package api.goraebab.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.anyLong;
+import static org.mockito.BDDMockito.argThat;
+import static org.mockito.BDDMockito.doNothing;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.verify;
+import static org.mockito.Mockito.times;
+
 import api.goraebab.domain.blueprint.dto.BlueprintReqDto;
 import api.goraebab.domain.blueprint.dto.BlueprintResDto;
 import api.goraebab.domain.blueprint.dto.BlueprintsResDto;
@@ -11,21 +21,18 @@ import api.goraebab.domain.remote.database.dto.StorageResDto;
 import api.goraebab.domain.remote.database.entity.DBMS;
 import api.goraebab.domain.remote.database.entity.Storage;
 import api.goraebab.domain.remote.database.repository.StorageRepository;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class BlueprintServiceTest {
@@ -36,91 +43,92 @@ public class BlueprintServiceTest {
     @Mock
     private StorageRepository storageRepository;
 
+    @Spy
+    private BlueprintMapper blueprintMapper = Mappers.getMapper(BlueprintMapper.class);
+
     @InjectMocks
     private BlueprintServiceImpl blueprintService;
 
-    private Long storageId;
-    private Long blueprintId;
     private Storage storage;
+    private StorageResDto storageResDto;
     private Blueprint blueprint;
     private BlueprintReqDto blueprintReqDto;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        storage = new Storage("123.123.123.123", 8080, DBMS.MYSQL, "Storage1", "root", "password");
+        ReflectionTestUtils.setField(storage, "id", 1L);
+        storageResDto = new StorageResDto(storage.getId(), storage.getHost(), storage.getPort(),
+            storage.getDbms(), storage.getName(), storage.getUsername());
+        blueprint = new Blueprint("Blueprint1", "Data1", storage);
+        ReflectionTestUtils.setField(blueprint, "id", 1L);
+        blueprintReqDto = new BlueprintReqDto("Blueprint1", "Data1");
 
-        storageId = 1L;
-        blueprintId = 1L;
-        storage = new Storage(storageId, "123.123.123.123", 8080, DBMS.MYSQL, "Storage1", "root", "password");
-        blueprint = new Blueprint(blueprintId, "Blueprint1", "Data1", false, storage);
-        blueprintReqDto = new BlueprintReqDto("Blueprint2", "Data2");
     }
 
     @Test
     @DisplayName("설계도 전체 목록 조회")
     void getBlueprints() {
+        // given
         List<Blueprint> blueprints = List.of(blueprint);
-        given(blueprintRepository.findByStorageId(storageId)).willReturn(blueprints);
-        given(BlueprintMapper.INSTANCE.toBlueprintsResDtoList(blueprints)).willReturn(List.of(
-                new BlueprintsResDto(blueprintId, "Blueprint1", "Data1", false, LocalDateTime.now(), LocalDateTime.now())
-        ));
+        given(blueprintRepository.findByStorageId(anyLong())).willReturn(blueprints);
 
-        List<BlueprintsResDto> result = blueprintService.getBlueprints(storageId);
+        // when
+        List<BlueprintsResDto> result = blueprintService.getBlueprints(storage.getId());
 
+        // then
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Blueprint1", result.get(0).getName());
+        assertEquals(blueprint.getName(), result.get(0).getName());
     }
 
     @Test
     @DisplayName("설계도 단건 조회")
     void getBlueprint() {
-        Blueprint blueprint = new Blueprint(blueprintId, "Blueprint1", "Data1", false, storage);
-        StorageResDto storageResDto = StorageResDto.builder()
-                .storageId(storage.getId())
-                .host(storage.getHost())
-                .port(storage.getPort())
-                .dbms(storage.getDbms())
-                .name(storage.getName())
-                .username(storage.getUsername())
-                .build();
+        // given
+        given(blueprintRepository.findByStorageIdAndId(anyLong(), anyLong())).willReturn(Optional.of(blueprint));
 
-        given(blueprintRepository.findByStorageIdAndId(storageId, blueprintId)).willReturn(Optional.of(blueprint));
-        given(BlueprintMapper.INSTANCE.toBlueprintResDto(blueprint)).willReturn(new BlueprintResDto(
-                blueprintId, "Blueprint1", "Data1", false, LocalDateTime.now(), LocalDateTime.now(), storageResDto
-        ));
+        // when
+        BlueprintResDto result = blueprintService.getBlueprint(1L, 1L);
 
-        BlueprintResDto result = blueprintService.getBlueprint(storageId, blueprintId);
-
+        // then
         assertNotNull(result);
-        assertEquals(blueprintId, result.getBlueprintId());
-        assertEquals("Blueprint1", result.getName());
-        assertEquals(storageId, result.getStorageInfo().getStorageId());
-        assertEquals(storage.getHost(), result.getStorageInfo().getHost());
+        assertEquals(blueprint.getId(), result.getBlueprintId());
+        assertEquals(blueprint.getName(), result.getName());
+        assertEquals(blueprint.getStorage().getId(), result.getStorageInfo().getStorageId());
+        assertEquals(blueprint.getStorage().getHost(), result.getStorageInfo().getHost());
     }
 
     @Test
     @DisplayName("설계도 저장")
     void saveBlueprint() {
-        given(storageRepository.findById(storageId)).willReturn(Optional.of(storage));
+        // given
+        given(storageRepository.findById(anyLong())).willReturn(Optional.ofNullable(storage));
 
-        blueprintService.saveBlueprint(storageId, blueprintReqDto);
+        // when
+        blueprintService.saveBlueprint(1L, blueprintReqDto);
 
-        verify(blueprintRepository.save(argThat(bp ->
-                "Blueprint2".equals(bp.getName())
-                        && "Data2".equals(bp.getData())
+        // then
+        verify(blueprintRepository, times(1)).save(argThat(bp ->
+                "Blueprint1".equals(bp.getName())
+                        && "Data1".equals(bp.getData())
                         && storage.equals(bp.getStorage())
                         && !bp.getIsRemote()
-        )));
+        ));
     }
 
     @Test
     @DisplayName("설계도 삭제")
     void deleteBlueprint() {
-        given(blueprintRepository.findByStorageIdAndId(storageId, blueprintId));
+        // given
+        given(blueprintRepository.findByStorageIdAndId(anyLong(), anyLong())).willReturn(
+            Optional.ofNullable(blueprint));
+        doNothing().when(blueprintRepository).delete(any());
 
-        blueprintService.deleteBlueprint(storageId, blueprintId);
+        // when
+        blueprintService.deleteBlueprint(1L, 1L);
 
+        // then
         verify(blueprintRepository).delete(blueprint);
     }
 

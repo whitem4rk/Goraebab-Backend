@@ -8,7 +8,6 @@ import lombok.*;
 @Getter
 @Entity
 @Table(name = "blueprint")
-@AllArgsConstructor
 @NoArgsConstructor
 public class Blueprint extends BaseEntity {
 

@@ -23,8 +23,6 @@ repositories {
     mavenCentral()
 }
 
-def activeProfile = project.hasProperty('profile') ? project.getProperty('profile') : 'mysql'
-
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -39,10 +37,10 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
-    if (activeProfile == 'mysql') {
-        implementation 'com.mysql:mysql-connector-j'
-    }
-
+    implementation 'mysql:mysql-connector-java:8.0.33'
+    implementation 'org.postgresql:postgresql'
+    implementation 'com.oracle.database.jdbc:ojdbc8:19.14.0.0'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:11.2.2.jre8'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

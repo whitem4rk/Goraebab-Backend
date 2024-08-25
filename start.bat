@@ -21,7 +21,7 @@ if /I "%DBMS%"=="mysql" (
     exit /b 1
 )
 
-docker compose up "%DBMS%" -d
-docker compose up backend -d
+docker-compose up "%DBMS%" -d
+docker-compose up backend -d
 
 pause

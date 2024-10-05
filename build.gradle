@@ -48,7 +48,15 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.7.0'
     implementation 'net.bytebuddy:byte-buddy:1.14.18'
 
+    // Jsoup
+    implementation 'org.jsoup:jsoup:1.18.1'
 
+    // Docker
+    implementation 'com.github.docker-java:docker-java:3.4.0'
+    implementation 'com.github.docker-java:docker-java-transport-okhttp:3.4.0'
+
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'jakarta.activation:jakarta.activation-api:2.1.3'
 
 }
 

@@ -16,12 +16,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RestController
 @Tag(name = "Blueprint API")
-@RequestMapping("/storage/{storageId}")
+@RequestMapping("/blueprints")
 @RequiredArgsConstructor
 public class BlueprintController {
 
@@ -29,7 +30,7 @@ public class BlueprintController {
 
     @Operation(summary = "Retrieve the list of blueprints",
         description = "Fetches a list of blueprints associated with a specific storage ID.")
-    @GetMapping("/blueprints")
+    @GetMapping
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -45,15 +46,15 @@ public class BlueprintController {
                         "{\"status\": \"RETRIEVAL_FAILED\", \"code\": 500, \"message\": \"Failed to retrieve data from the database.\", \"errors\": []}"))
         )
     })
-    public ResponseEntity<List<BlueprintsResDto>> getBlueprints(@PathVariable Long storageId) {
-        List<BlueprintsResDto> blueprints = blueprintService.getBlueprints(storageId);
-
+    public ResponseEntity<List<BlueprintsResDto>> getBlueprints(@RequestParam(required = false) Long storageId,
+                                                                @RequestParam(defaultValue = "false") boolean isRemote) {
+        List<BlueprintsResDto> blueprints = blueprintService.getBlueprints(storageId, isRemote);
         return ResponseEntity.ok(blueprints);
     }
 
     @Operation(summary = "Retrieve a single blueprint",
         description = "Fetches the details of a single blueprint based on the provided blueprint ID.")
-    @GetMapping("/blueprint/{blueprintId}")
+    @GetMapping("/{blueprintId}")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -87,17 +88,16 @@ public class BlueprintController {
                         "{\"status\": \"RETRIEVAL_FAILED\", \"code\": 500, \"message\": \"Failed to retrieve data from the database.\", \"errors\": []}"))
         )
     })
-    public ResponseEntity<BlueprintResDto> getBlueprint(
-        @PathVariable @Schema(description = "The unique identifier of the storage.") Long storageId,
-        @PathVariable @Schema(description = "The unique identifier of the blueprint.") Long blueprintId) {
-        BlueprintResDto blueprint = blueprintService.getBlueprint(storageId, blueprintId);
-
+    public ResponseEntity<BlueprintResDto> getBlueprint(@RequestParam(required = false) Long storageId,
+                                                        @PathVariable Long blueprintId,
+                                                        @RequestParam(defaultValue = "false") boolean isRemote) {
+        BlueprintResDto blueprint = blueprintService.getBlueprintById(storageId, blueprintId, isRemote);
         return ResponseEntity.ok(blueprint);
     }
 
     @Operation(summary = "Save the blueprint to the local database",
         description = "Saves a new blueprint associated with the specified storage ID to the local database.")
-    @PostMapping("/blueprint")
+    @PostMapping("/{storageId}")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -123,7 +123,9 @@ public class BlueprintController {
         )
     })
     public ResponseEntity<Void> saveBlueprint(@PathVariable Long storageId,
-                                              @RequestBody @Valid BlueprintReqDto blueprintReqDto) {
+                                              @RequestPart @Valid BlueprintReqDto blueprintReqDto,
+                                              @RequestPart("data") MultipartFile data) {
+        blueprintReqDto.setData(data);
         blueprintService.saveBlueprint(storageId, blueprintReqDto);
 
         return ResponseEntity.ok().build();
@@ -131,7 +133,7 @@ public class BlueprintController {
 
     @Operation(summary = "Modify the blueprint",
         description = "Updates the details of an existing blueprint in the local database.")
-    @PatchMapping("/blueprint/{blueprintId}")
+    @PatchMapping("/{storageId}/{blueprintId}")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -156,10 +158,11 @@ public class BlueprintController {
                         "{\"status\": \"MODIFY_FAILED\", \"code\": 500, \"message\": \"Failed to modify blueprint.\", \"errors\": []}"))
         )
     })
-    public ResponseEntity<Void> modifyBlueprint(
-        @PathVariable @Schema(description = "The unique identifier of the storage.") Long storageId,
-        @PathVariable @Schema(description = "The unique identifier of the blueprint.") Long blueprintId,
-        @RequestBody @Valid BlueprintReqDto blueprintReqDto) {
+    public ResponseEntity<Void> modifyBlueprint(@PathVariable Long storageId,
+                                                @PathVariable Long blueprintId,
+                                                @RequestPart @Valid BlueprintReqDto blueprintReqDto,
+                                                @RequestPart("data") MultipartFile data) {
+        blueprintReqDto.setData(data);
         blueprintService.modifyBlueprint(storageId, blueprintId, blueprintReqDto);
 
         return ResponseEntity.ok().build();
@@ -167,7 +170,7 @@ public class BlueprintController {
 
     @Operation(summary = "Delete the blueprint",
         description = "Deletes the specified blueprint from the local database based on the blueprint ID.")
-    @DeleteMapping("/blueprint/{blueprintId}")
+    @DeleteMapping("/{storageId}/{blueprintId}")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",

@@ -40,7 +40,8 @@ public enum ErrorCode {
      */
 
     SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Failed to save blueprint."),
-    MODIFY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Failed to modify blueprint.");
+    MODIFY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Failed to modify blueprint."),
+    FILE_PROCESSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Failed to process file content.");
 
 
     private final HttpStatus status;

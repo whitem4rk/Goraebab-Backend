@@ -54,7 +54,7 @@ public class BlueprintController {
 
     @Operation(summary = "Retrieve a single blueprint",
         description = "Fetches the details of a single blueprint based on the provided blueprint ID.")
-    @GetMapping("/{blueprintId}")
+    @GetMapping("/{blueprintId}/detail")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",

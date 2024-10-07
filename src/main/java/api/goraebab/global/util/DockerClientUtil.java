@@ -18,7 +18,7 @@ public class DockerClientUtil {
 
         DefaultDockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(dockerHost)
-                .withApiVersion(RemoteApiVersion.VERSION_1_41)
+                .withApiVersion(RemoteApiVersion.VERSION_1_43)
                 .build();
 
         DockerHttpClient httpClient = new OkDockerHttpClient.Builder()

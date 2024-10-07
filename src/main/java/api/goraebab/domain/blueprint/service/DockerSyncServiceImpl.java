@@ -31,6 +31,10 @@ public class DockerSyncServiceImpl implements DockerSyncService {
     private final HtmlParserServiceImpl htmlParserService;
     private final DockerClientUtil dockerClientFactory;
 
+    public static final String EXCLUDED_CONTAINER_NAME = "goraebab-backend";
+    public static final String RUNNING = "Running";
+    public static final String NETWORK_MODE = "bridge";
+
     @Override
     public void syncDockerWithBlueprint(Long blueprintId) {
         DockerClient dockerClient;
@@ -61,7 +65,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
 
     private void removeAllContainers(DockerClient dockerClient, List<Container> runningContainers) {
         for (Container container : runningContainers) {
-            if(!container.getNames()[0].contains("goraebab-backend")) {
+            if(!container.getNames()[0].contains(EXCLUDED_CONTAINER_NAME)) {
                 dockerClient.stopContainerCmd(container.getId()).exec();
                 dockerClient.removeContainerCmd(container.getId()).exec();
             }
@@ -72,12 +76,12 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         for(HostInfoDto host : parsedData.getHosts()) {
             for(BridgeInfoDto bridge : host.getBridges()) {
                 for(ContainerInfoDto container : bridge.getContainers()) {
-                    if(container.getContainerStatus().equals("Running")) {
+                    if(container.getContainerStatus().equals(RUNNING)) {
                         try {
                             CreateContainerResponse response = createContainer(dockerClient, host, container);
                             startContainer(dockerClient, response.getId());
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            throw new CustomException(ErrorCode.CONTAINER_CREATION_FAILED, e);
                         }
                     }
                 }
@@ -93,7 +97,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         return dockerClient.createContainerCmd(container.getImage())
                 .withHostName(host.getHostName())
                 .withName(container.getContainerName())
-                .withHostConfig(new HostConfig().withNetworkMode("bridge"))
+                .withHostConfig(new HostConfig().withNetworkMode(NETWORK_MODE))
                 .withVolumes(volumes)
                 .exec();
     }

@@ -47,40 +47,52 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         boolean isDockerRemote = blueprint.getIsDockerRemote();
         String remoteUrl = isDockerRemote ? blueprint.getDockerRemoteUrl() : null;
 
-        if(isDockerRemote) {
-            dockerClient = dockerClientFactory.createRemoteDockerClient(remoteUrl);
-        } else {
-            dockerClient = dockerClientFactory.createLocalDockerClient();
-        }
+        try {
+            if (isDockerRemote) {
+                dockerClient = dockerClientFactory.createRemoteDockerClient(remoteUrl);
+            } else {
+                dockerClient = dockerClientFactory.createLocalDockerClient();
+            }
 
-        syncContainers(dockerClient, parsedData);
+            syncContainers(dockerClient, parsedData);
+        } catch (DockerException e) {
+            throw new CustomException(ErrorCode.DOCKER_SYNC_FAILED, e);
+        }
     }
 
     private void syncContainers(DockerClient dockerClient, ParsedDataDto parsedData) {
         List<Container> runningContainers = dockerClient.listContainersCmd().exec();
 
-        removeAllContainers(dockerClient, runningContainers);
-        createAndStartContainers(dockerClient, parsedData);
+        try {
+            removeAllContainers(dockerClient, runningContainers);
+            createAndStartContainers(dockerClient, parsedData);
+        } catch (DockerException e) {
+            throw new CustomException(ErrorCode.CONTAINER_SYNC_FAILED, e);
+        }
     }
 
     private void removeAllContainers(DockerClient dockerClient, List<Container> runningContainers) {
         for (Container container : runningContainers) {
-            if(!container.getNames()[0].contains(EXCLUDED_CONTAINER_NAME)) {
-                dockerClient.stopContainerCmd(container.getId()).exec();
-                dockerClient.removeContainerCmd(container.getId()).exec();
+            if (!container.getNames()[0].contains(EXCLUDED_CONTAINER_NAME)) {
+                try {
+                    dockerClient.stopContainerCmd(container.getId()).exec();
+                    dockerClient.removeContainerCmd(container.getId()).exec();
+                } catch (DockerException e) {
+                    throw new CustomException(ErrorCode.CONTAINER_REMOVAL_FAILED, e);
+                }
             }
         }
     }
 
     private void createAndStartContainers(DockerClient dockerClient, ParsedDataDto parsedData) {
-        for(HostInfoDto host : parsedData.getHosts()) {
-            for(BridgeInfoDto bridge : host.getBridges()) {
-                for(ContainerInfoDto container : bridge.getContainers()) {
-                    if(container.getContainerStatus().equals(RUNNING)) {
+        for (HostInfoDto host : parsedData.getHosts()) {
+            for (BridgeInfoDto bridge : host.getBridges()) {
+                for (ContainerInfoDto container : bridge.getContainers()) {
+                    if (container.getContainerStatus().equals(RUNNING)) {
                         try {
                             CreateContainerResponse response = createContainer(dockerClient, host, container);
                             startContainer(dockerClient, response.getId());
-                        } catch (Exception e) {
+                        } catch (DockerException e) {
                             throw new CustomException(ErrorCode.CONTAINER_CREATION_FAILED, e);
                         }
                     }
@@ -107,4 +119,3 @@ public class DockerSyncServiceImpl implements DockerSyncService {
     }
 
 }
-

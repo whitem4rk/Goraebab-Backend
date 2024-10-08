@@ -120,6 +120,42 @@ public class BlueprintController {
                 @ExampleObject(
                     value =
                         "{\"status\": \"SAVE_FAILED\", \"code\": 500, \"message\": \"Failed to save blueprint.\", \"errors\": []}"))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Failed to synchronize Docker with the specified blueprint.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples =
+                @ExampleObject(
+                    value =
+                        "{\"status\": \"DOCKER_SYNC_FAILED\", \"code\": 500, \"message\": \"Failed to synchronize Docker with the specified blueprint.\", \"errors\": []}"))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "An error occurred during the container synchronization process.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples =
+                @ExampleObject(
+                    value =
+                        "{\"status\": \"CONTAINER_SYNC_FAILED\", \"code\": 500, \"message\": \"An error occurred during the container synchronization process.\", \"errors\": []}"))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Failed to stop or remove the specified container.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples =
+                @ExampleObject(
+                    value =
+                        "{\"status\": \"CONTAINER_REMOVAL_FAILED\", \"code\": 500, \"message\": \"Failed to stop or remove the specified container.\", \"errors\": []}"))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Failed to create the specified Docker container.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples =
+                @ExampleObject(
+                    value =
+                        "{\"status\": \"CONTAINER_CREATION_FAILED\", \"code\": 500, \"message\": \"Failed to create the specified Docker container.\", \"errors\": []}"))
         )
     })
     public ResponseEntity<Void> saveBlueprint(@PathVariable Long storageId,

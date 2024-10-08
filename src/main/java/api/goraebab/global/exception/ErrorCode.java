@@ -42,8 +42,10 @@ public enum ErrorCode {
     SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Failed to save blueprint."),
     MODIFY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Failed to modify blueprint."),
     FILE_PROCESSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Failed to process file content."),
-    CONTAINER_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Failed to create and start container.");
-
+    DOCKER_SYNC_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Failed to synchronize Docker with the specified blueprint."),
+    CONTAINER_SYNC_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "An error occurred during the container synchronization process."),
+    CONTAINER_REMOVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Failed to stop or remove the specified container."),
+    CONTAINER_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Failed to create the specified Docker container.");
 
     private final HttpStatus status;
 

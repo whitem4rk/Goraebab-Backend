@@ -12,6 +12,6 @@ public interface BlueprintRepository extends JpaRepository<Blueprint, Long> {
 
     List<Blueprint> findByStorageId(Long storageId);
 
-    Optional<Blueprint> findByStorageIdAndId(Long storageId, Long blueprintId);
+    Blueprint findByStorageIdAndId(Long storageId, Long blueprintId);
 
 }

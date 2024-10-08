@@ -13,7 +13,10 @@ import api.goraebab.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
@@ -22,27 +25,34 @@ public class BlueprintServiceImpl implements BlueprintService {
 
     private final BlueprintRepository blueprintRepository;
     private final StorageRepository storageRepository;
+    private final DockerSyncServiceImpl dockerSyncService;
 
     @Override
     @Transactional(readOnly = true)
-    public List<BlueprintsResDto> getBlueprints(Long storageId) {
-        List<Blueprint> blueprints = blueprintRepository.findByStorageId(storageId);
-        if(blueprints.isEmpty()) {
-            throw new CustomException(ErrorCode.NOT_FOUND_VALUE);
+    public List<BlueprintsResDto> getBlueprints(Long storageId, boolean isRemote) {
+        List<Blueprint> blueprints;
+
+        if (isRemote) {
+            blueprints = blueprintRepository.findByStorageId(storageId);
+        } else {
+            blueprints = blueprintRepository.findAll();
         }
-
         return BlueprintMapper.INSTANCE.toBlueprintsResDtoList(blueprints);
-
     }
 
     @Override
     @Transactional(readOnly = true)
-    public BlueprintResDto getBlueprint(Long storageId, Long blueprintId) {
-        Blueprint blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
+    public BlueprintResDto getBlueprintById(Long storageId, Long blueprintId, boolean isRemote) {
+        Blueprint blueprint;
 
+        if (isRemote) {
+            blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
+        } else {
+            blueprint = blueprintRepository.findById(blueprintId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+        }
         return BlueprintMapper.INSTANCE.toBlueprintResDto(blueprint);
     }
-
 
     @Override
     @Transactional
@@ -50,22 +60,32 @@ public class BlueprintServiceImpl implements BlueprintService {
         Storage storage = storageRepository.findById(storageId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
 
+        String dataAsString = convertDataToString(blueprintReqDto.getData());
+
         Blueprint blueprint = Blueprint.builder()
                 .name(blueprintReqDto.getName())
-                .data(blueprintReqDto.getData())
+                .data(dataAsString)
                 .storage(storage)
+                .isDockerRemote(blueprintReqDto.getIsDockerRemote())
+                .dockerRemoteUrl(blueprintReqDto.getRemoteUrl())
                 .build();
 
         blueprintRepository.save(blueprint);
+
+        dockerSyncService.syncDockerWithBlueprint(blueprint.getId());
     }
 
     @Override
     @Transactional
     public void modifyBlueprint(Long storageId, Long blueprintId, BlueprintReqDto blueprintReqDto) {
+        String dataAsString = convertDataToString(blueprintReqDto.getData());
+
         Blueprint blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
-        blueprint.modify(blueprintReqDto.getName(), blueprintReqDto.getData());
+        blueprint.modify(blueprintReqDto.getName(), dataAsString);
 
         blueprintRepository.save(blueprint);
+
+        dockerSyncService.syncDockerWithBlueprint(blueprint.getId());
     }
 
     @Override
@@ -77,8 +97,15 @@ public class BlueprintServiceImpl implements BlueprintService {
     }
 
     private Blueprint findBlueprintByStorageAndId(Long storageId, Long blueprintId) {
-        return blueprintRepository.findByStorageIdAndId(storageId, blueprintId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+        return blueprintRepository.findByStorageIdAndId(storageId, blueprintId);
+    }
+
+    private String convertDataToString(MultipartFile file) {
+        try {
+            return new String(file.getBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.FILE_PROCESSING_ERROR);
+        }
     }
 
 }

@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface BlueprintService {
 
-    List<BlueprintsResDto> getBlueprints(Long storageId);
+    List<BlueprintsResDto> getBlueprints(Long storageId, boolean isRemote);
 
-    BlueprintResDto getBlueprint(Long storageId, Long blueprintId);
+    BlueprintResDto getBlueprintById(Long storageId, Long blueprintId, boolean isRemote);
 
     void saveBlueprint(Long storageId, BlueprintReqDto blueprintReqDto);
 

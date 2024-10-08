@@ -32,10 +32,14 @@ public class BlueprintServiceImpl implements BlueprintService {
     public List<BlueprintsResDto> getBlueprints(Long storageId, boolean isRemote) {
         List<Blueprint> blueprints;
 
-        if (isRemote) {
-            blueprints = blueprintRepository.findByStorageId(storageId);
-        } else {
-            blueprints = blueprintRepository.findAll();
+        try {
+            if (isRemote) {
+                blueprints = blueprintRepository.findByStorageId(storageId);
+            } else {
+                blueprints = blueprintRepository.findAll();
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.RETRIEVAL_FAILED);
         }
         return BlueprintMapper.INSTANCE.toBlueprintsResDtoList(blueprints);
     }
@@ -45,11 +49,15 @@ public class BlueprintServiceImpl implements BlueprintService {
     public BlueprintResDto getBlueprintById(Long storageId, Long blueprintId, boolean isRemote) {
         Blueprint blueprint;
 
-        if (isRemote) {
-            blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
-        } else {
-            blueprint = blueprintRepository.findById(blueprintId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+        try {
+            if (isRemote) {
+                blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
+            } else {
+                blueprint = blueprintRepository.findById(blueprintId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.RETRIEVAL_FAILED);
         }
         return BlueprintMapper.INSTANCE.toBlueprintResDto(blueprint);
     }
@@ -57,43 +65,52 @@ public class BlueprintServiceImpl implements BlueprintService {
     @Override
     @Transactional
     public void saveBlueprint(Long storageId, BlueprintReqDto blueprintReqDto) {
-        Storage storage = storageRepository.findById(storageId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+        try {
+            Storage storage = storageRepository.findById(storageId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
 
-        String dataAsString = convertDataToString(blueprintReqDto.getData());
+            String dataAsString = convertDataToString(blueprintReqDto.getData());
 
-        Blueprint blueprint = Blueprint.builder()
-                .name(blueprintReqDto.getName())
-                .data(dataAsString)
-                .storage(storage)
-                .isDockerRemote(blueprintReqDto.getIsDockerRemote())
-                .dockerRemoteUrl(blueprintReqDto.getRemoteUrl())
-                .build();
+            Blueprint blueprint = Blueprint.builder()
+                    .name(blueprintReqDto.getName())
+                    .data(dataAsString)
+                    .storage(storage)
+                    .isDockerRemote(blueprintReqDto.getIsDockerRemote())
+                    .dockerRemoteUrl(blueprintReqDto.getRemoteUrl())
+                    .build();
 
-        blueprintRepository.save(blueprint);
-
-        dockerSyncService.syncDockerWithBlueprint(blueprint.getId());
+            blueprintRepository.save(blueprint);
+            dockerSyncService.syncDockerWithBlueprint(blueprint.getId());
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.SAVE_FAILED);
+        }
     }
 
     @Override
     @Transactional
     public void modifyBlueprint(Long storageId, Long blueprintId, BlueprintReqDto blueprintReqDto) {
-        String dataAsString = convertDataToString(blueprintReqDto.getData());
+        try {
+            String dataAsString = convertDataToString(blueprintReqDto.getData());
 
-        Blueprint blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
-        blueprint.modify(blueprintReqDto.getName(), dataAsString);
+            Blueprint blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
+            blueprint.modify(blueprintReqDto.getName(), dataAsString);
 
-        blueprintRepository.save(blueprint);
-
-        dockerSyncService.syncDockerWithBlueprint(blueprint.getId());
+            blueprintRepository.save(blueprint);
+            dockerSyncService.syncDockerWithBlueprint(blueprint.getId());
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.MODIFY_FAILED);
+        }
     }
 
     @Override
     @Transactional
     public void deleteBlueprint(Long storageId, Long blueprintId) {
-        Blueprint blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
-
-        blueprintRepository.delete(blueprint);
+        try {
+            Blueprint blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
+            blueprintRepository.delete(blueprint);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.DELETE_FAILED);
+        }
     }
 
     private Blueprint findBlueprintByStorageAndId(Long storageId, Long blueprintId) {

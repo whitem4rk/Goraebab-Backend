@@ -29,14 +29,14 @@ public class BlueprintServiceImpl implements BlueprintService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BlueprintsResDto> getBlueprints(Long storageId, boolean isRemote) {
+    public List<BlueprintsResDto> getBlueprints(Long storageId) {
         List<Blueprint> blueprints;
 
         try {
-            if (isRemote) {
-                blueprints = blueprintRepository.findByStorageId(storageId);
-            } else {
+            if (storageId == null) {
                 blueprints = blueprintRepository.findAll();
+            } else {
+                blueprints = blueprintRepository.findByStorageId(storageId);
             }
         } catch (Exception e) {
             throw new CustomException(ErrorCode.RETRIEVAL_FAILED);
@@ -46,15 +46,15 @@ public class BlueprintServiceImpl implements BlueprintService {
 
     @Override
     @Transactional(readOnly = true)
-    public BlueprintResDto getBlueprintById(Long storageId, Long blueprintId, boolean isRemote) {
+    public BlueprintResDto getBlueprintById(Long storageId, Long blueprintId) {
         Blueprint blueprint;
 
         try {
-            if (isRemote) {
-                blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
-            } else {
+            if (storageId == null) {
                 blueprint = blueprintRepository.findById(blueprintId)
                         .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+            } else {
+                blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
             }
         } catch (Exception e) {
             throw new CustomException(ErrorCode.RETRIEVAL_FAILED);
@@ -66,8 +66,12 @@ public class BlueprintServiceImpl implements BlueprintService {
     @Transactional
     public void saveBlueprint(Long storageId, BlueprintReqDto blueprintReqDto) {
         try {
-            Storage storage = storageRepository.findById(storageId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+            Storage storage = null;
+
+            if (storageId != null) {
+                storage = storageRepository.findById(storageId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+            }
 
             String dataAsString = convertDataToString(blueprintReqDto.getData());
 
@@ -92,7 +96,15 @@ public class BlueprintServiceImpl implements BlueprintService {
         try {
             String dataAsString = convertDataToString(blueprintReqDto.getData());
 
-            Blueprint blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
+            Blueprint blueprint;
+
+            if (storageId == null) {
+                blueprint = blueprintRepository.findById(blueprintId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+            } else {
+                blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
+            }
+
             blueprint.modify(blueprintReqDto.getName(), dataAsString);
 
             blueprintRepository.save(blueprint);
@@ -106,7 +118,14 @@ public class BlueprintServiceImpl implements BlueprintService {
     @Transactional
     public void deleteBlueprint(Long storageId, Long blueprintId) {
         try {
-            Blueprint blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
+            Blueprint blueprint;
+
+            if (storageId == null) {
+                blueprint = blueprintRepository.findById(blueprintId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+            } else {
+                blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
+            }
             blueprintRepository.delete(blueprint);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.DELETE_FAILED);

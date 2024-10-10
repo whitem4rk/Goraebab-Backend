@@ -20,8 +20,12 @@ public class DaemonServiceImpl implements DaemonService {
 
   @Override
   public List<DaemonResDto> getDaemons() {
-    List<Daemon> daemonList = daemonRepository.findAll();
-    return DaemonMapper.INSTANCE.entityListToResDtoList(daemonList);
+    try {
+      List<Daemon> daemonList = daemonRepository.findAll();
+      return DaemonMapper.INSTANCE.entityListToResDtoList(daemonList);
+    } catch (Exception e) {
+      throw new CustomException(ErrorCode.RETRIEVAL_FAILED);
+    }
   }
 
   @Override
@@ -37,7 +41,11 @@ public class DaemonServiceImpl implements DaemonService {
 
   @Override
   public void deleteDaemon(Long daemonId) {
-    daemonRepository.deleteById(daemonId);
+    try {
+      daemonRepository.deleteById(daemonId);
+    } catch (Exception e) {
+      throw new CustomException(ErrorCode.DELETE_FAILED);
+    }
   }
 
 }

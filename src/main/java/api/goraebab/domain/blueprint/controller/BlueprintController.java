@@ -46,9 +46,8 @@ public class BlueprintController {
                         "{\"status\": \"RETRIEVAL_FAILED\", \"code\": 500, \"message\": \"Failed to retrieve data from the database.\", \"errors\": []}"))
         )
     })
-    public ResponseEntity<List<BlueprintsResDto>> getBlueprints(@RequestParam(required = false) Long storageId,
-                                                                @RequestParam(defaultValue = "false") boolean isRemote) {
-        List<BlueprintsResDto> blueprints = blueprintService.getBlueprints(storageId, isRemote);
+    public ResponseEntity<List<BlueprintsResDto>> getBlueprints(@RequestParam(required = false) @Schema(description = "The unique identifier of the storage. If null, the blueprint is considered to be in the local storage.") Long storageId) {
+        List<BlueprintsResDto> blueprints = blueprintService.getBlueprints(storageId);
         return ResponseEntity.ok(blueprints);
     }
 
@@ -88,16 +87,15 @@ public class BlueprintController {
                         "{\"status\": \"RETRIEVAL_FAILED\", \"code\": 500, \"message\": \"Failed to retrieve data from the database.\", \"errors\": []}"))
         )
     })
-    public ResponseEntity<BlueprintResDto> getBlueprint(@RequestParam(required = false) Long storageId,
-                                                        @PathVariable Long blueprintId,
-                                                        @RequestParam(defaultValue = "false") boolean isRemote) {
-        BlueprintResDto blueprint = blueprintService.getBlueprintById(storageId, blueprintId, isRemote);
+    public ResponseEntity<BlueprintResDto> getBlueprint(@RequestParam(required = false) @Schema(description = "The unique identifier of the storage. If null, the blueprint is considered to be in the local storage.") Long storageId,
+                                                        @PathVariable @Schema(description = "The unique identifier of the blueprint.") Long blueprintId) {
+        BlueprintResDto blueprint = blueprintService.getBlueprintById(storageId, blueprintId);
         return ResponseEntity.ok(blueprint);
     }
 
     @Operation(summary = "Save the blueprint to the local database",
         description = "Saves a new blueprint associated with the specified storage ID to the local database.")
-    @PostMapping("/{storageId}")
+    @PostMapping
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -113,6 +111,15 @@ public class BlueprintController {
                         "{\"status\": \"INVALID_TYPE_VALUE\", \"code\": 400, \"message\": \"The type of the provided input value does not match the expected type.\", \"errors\": []}"))
         ),
         @ApiResponse(
+            responseCode = "404",
+            description = "The requested resource could not be found.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples =
+                @ExampleObject(
+                    value =
+                        "{\"status\": \"NOT_FOUND_VALUE\", \"code\": 404, \"message\": \"The requested resource could not be found.\", \"errors\": []}"))
+        ),
+        @ApiResponse(
             responseCode = "500",
             description = "Failed to save blueprint.",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class),
@@ -120,9 +127,45 @@ public class BlueprintController {
                 @ExampleObject(
                     value =
                         "{\"status\": \"SAVE_FAILED\", \"code\": 500, \"message\": \"Failed to save blueprint.\", \"errors\": []}"))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Failed to synchronize Docker with the specified blueprint.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples =
+                @ExampleObject(
+                    value =
+                        "{\"status\": \"DOCKER_SYNC_FAILED\", \"code\": 500, \"message\": \"Failed to synchronize Docker with the specified blueprint.\", \"errors\": []}"))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "An error occurred during the container synchronization process.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples =
+                @ExampleObject(
+                    value =
+                        "{\"status\": \"CONTAINER_SYNC_FAILED\", \"code\": 500, \"message\": \"An error occurred during the container synchronization process.\", \"errors\": []}"))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Failed to stop or remove the specified container.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples =
+                @ExampleObject(
+                    value =
+                        "{\"status\": \"CONTAINER_REMOVAL_FAILED\", \"code\": 500, \"message\": \"Failed to stop or remove the specified container.\", \"errors\": []}"))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Failed to create the specified Docker container.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples =
+                @ExampleObject(
+                    value =
+                        "{\"status\": \"CONTAINER_CREATION_FAILED\", \"code\": 500, \"message\": \"Failed to create the specified Docker container.\", \"errors\": []}"))
         )
     })
-    public ResponseEntity<Void> saveBlueprint(@PathVariable Long storageId,
+    public ResponseEntity<Void> saveBlueprint(@RequestParam(required = false) @Schema(description = "The unique identifier of the storage. If null, the blueprint is considered to be in the local storage.") Long storageId,
                                               @RequestPart @Valid BlueprintReqDto blueprintReqDto,
                                               @RequestPart("data") MultipartFile data) {
         blueprintReqDto.setData(data);
@@ -133,7 +176,7 @@ public class BlueprintController {
 
     @Operation(summary = "Modify the blueprint",
         description = "Updates the details of an existing blueprint in the local database.")
-    @PatchMapping("/{storageId}/{blueprintId}")
+    @PatchMapping("/{blueprintId}")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -147,6 +190,15 @@ public class BlueprintController {
                 @ExampleObject(
                     value =
                         "{\"status\": \"INVALID_TYPE_VALUE\", \"code\": 400, \"message\": \"The type of the provided input value does not match the expected type.\", \"errors\": []}"))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "The requested resource could not be found.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples =
+                @ExampleObject(
+                    value =
+                        "{\"status\": \"NOT_FOUND_VALUE\", \"code\": 404, \"message\": \"The requested resource could not be found.\", \"errors\": []}"))
         ),
         @ApiResponse(
             responseCode = "500",
@@ -158,8 +210,8 @@ public class BlueprintController {
                         "{\"status\": \"MODIFY_FAILED\", \"code\": 500, \"message\": \"Failed to modify blueprint.\", \"errors\": []}"))
         )
     })
-    public ResponseEntity<Void> modifyBlueprint(@PathVariable Long storageId,
-                                                @PathVariable Long blueprintId,
+    public ResponseEntity<Void> modifyBlueprint(@RequestParam(required = false) @Schema(description = "The unique identifier of the storage. If null, the blueprint is considered to be in the local storage.") Long storageId,
+                                                @PathVariable @Schema(description = "The unique identifier of the blueprint.") Long blueprintId,
                                                 @RequestPart @Valid BlueprintReqDto blueprintReqDto,
                                                 @RequestPart("data") MultipartFile data) {
         blueprintReqDto.setData(data);
@@ -186,6 +238,15 @@ public class BlueprintController {
                         "{\"status\": \"INVALID_TYPE_VALUE\", \"code\": 400, \"message\": \"The type of the provided input value does not match the expected type.\", \"errors\": []}"))
         ),
         @ApiResponse(
+            responseCode = "404",
+            description = "The requested resource could not be found.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples =
+                @ExampleObject(
+                    value =
+                        "{\"status\": \"NOT_FOUND_VALUE\", \"code\": 404, \"message\": \"The requested resource could not be found.\", \"errors\": []}"))
+        ),
+        @ApiResponse(
             responseCode = "500",
             description = "Failed to delete the specified resource.",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class),
@@ -195,9 +256,8 @@ public class BlueprintController {
                         "{\"status\": \"DELETE_FAILED\", \"code\": 500, \"message\": \"Failed to delete the specified resource.\", \"errors\": []}"))
         )
     })
-    public ResponseEntity<Void> deleteBlueprint(
-        @PathVariable @Schema(description = "The unique identifier of the storage.") Long storageId,
-        @PathVariable @Schema(description = "The unique identifier of the blueprint.") Long blueprintId) {
+    public ResponseEntity<Void> deleteBlueprint(@RequestParam(required = false) @Schema(description = "The unique identifier of the storage. If null, the blueprint is considered to be in the local storage.") Long storageId,
+                                                @PathVariable @Schema(description = "The unique identifier of the blueprint.") Long blueprintId) {
         blueprintService.deleteBlueprint(storageId, blueprintId);
 
         return ResponseEntity.ok().build();

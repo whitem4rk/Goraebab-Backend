@@ -32,41 +32,56 @@ public class StorageServiceImpl implements StorageService {
   @Override
   @Transactional(readOnly = true)
   public List<StorageResDto> getStorages() {
-    List<Storage> storageList = storageRepository.findAll();
-    return StorageMapper.INSTANCE.entityListToResDtoList(storageList);
+    try {
+      List<Storage> storageList = storageRepository.findAll();
+      return StorageMapper.INSTANCE.entityListToResDtoList(storageList);
+    } catch (Exception e) {
+      throw new CustomException(ErrorCode.RETRIEVAL_FAILED);
+    }
   }
 
   @Override
   @Transactional
   public void connectStorage(StorageReqDto storageReqDto) {
-    DataSource dataSource = ConnectionUtil.createDataSource(storageReqDto);
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-    jdbcTemplate.queryForList(SELECT_ALL_STORAGES);
+    try {
+      DataSource dataSource = ConnectionUtil.createDataSource(storageReqDto);
+      JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+      jdbcTemplate.queryForList(SELECT_ALL_STORAGES);
 
-    Storage storage = StorageMapper.INSTANCE.reqDtoToEntity(storageReqDto);
-    storageRepository.save(storage);
+      Storage storage = StorageMapper.INSTANCE.reqDtoToEntity(storageReqDto);
+      storageRepository.save(storage);
+    } catch (Exception e) {
+      throw new CustomException(ErrorCode.CONNECTION_FAILED);
+    }
   }
 
   @Override
   @Transactional
-  public void deleteStorage(Long storageId) {
-    storageRepository.deleteById(storageId);
-  }
+    public void deleteStorage(Long storageId) {
+      try {
+        storageRepository.deleteById(storageId);
+      } catch (Exception e) {
+        throw new CustomException(ErrorCode.DELETE_FAILED);
+      }
+    }
 
   @Override
   @Transactional
   public void copyStorage(Long storageId) {
-    Storage storage = storageRepository.findById(storageId)
-        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+    try {
+      Storage storage = storageRepository.findById(storageId)
+              .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
 
-    DataSource dataSource = ConnectionUtil.createDataSource(storage);
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-    List<Blueprint> copiedData = jdbcTemplate.query(SELECT_ALL_BLUEPRINTS,
-        new BlueprintRowMapper());
+      DataSource dataSource = ConnectionUtil.createDataSource(storage);
+      JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+      List<Blueprint> copiedData = jdbcTemplate.query(SELECT_ALL_BLUEPRINTS, new BlueprintRowMapper());
 
-    copiedData.forEach(Blueprint::setAsRemote);
+      copiedData.forEach(Blueprint::setAsRemote);
 
-    blueprintRepository.saveAll(copiedData);
+      blueprintRepository.saveAll(copiedData);
+    } catch (Exception e) {
+      throw new CustomException(ErrorCode.COPY_FAILED);
+    }
   }
 
 }

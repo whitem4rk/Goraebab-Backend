@@ -18,8 +18,10 @@ public class Blueprint extends BaseEntity {
   @Column(nullable = false)
   private String name;
 
-  @Column(nullable = false, columnDefinition = "LONGTEXT")
+  @Lob
+  @Column(nullable = false)
   private String data;
+
 
   @Column
   private Boolean isDatabaseRemote = false;

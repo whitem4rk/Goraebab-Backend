@@ -26,8 +26,8 @@ public class StorageServiceImpl implements StorageService {
   private final StorageRepository storageRepository;
   private final BlueprintRepository blueprintRepository;
 
-  private static final String SELECT_ALL_STORAGES = "SELECT * FROM goraebab.storage";
-  private static final String SELECT_ALL_BLUEPRINTS = "SELECT * FROM goraebab.blueprint";
+  private static final String SELECT_ALL_STORAGES = "SELECT * FROM storage";
+  private static final String SELECT_ALL_BLUEPRINTS = "SELECT * FROM blueprint";
 
   @Override
   @Transactional(readOnly = true)

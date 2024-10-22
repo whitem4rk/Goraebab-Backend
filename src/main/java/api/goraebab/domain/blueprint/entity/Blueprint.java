@@ -21,22 +21,9 @@ public class Blueprint extends BaseEntity {
   @Column(nullable = false, columnDefinition = "LONGTEXT")
   private String data;
 
-  @Column
-  private Boolean isDatabaseRemote = false;
-
-  @Column(nullable = false)
-  private Boolean isDockerRemote;
-
-  @Column
-  private String dockerRemoteUrl;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "storage_id")
   private Storage storage;
-
-  public void setAsRemote() {
-    this.isDatabaseRemote = true;
-  }
 
   public void modify(String name, String data) {
     if (name != null) {
@@ -48,12 +35,10 @@ public class Blueprint extends BaseEntity {
   }
 
   @Builder
-  public Blueprint(String name, String data, Storage storage, boolean isDockerRemote, String dockerRemoteUrl) {
+  public Blueprint(String name, String data, Storage storage) {
     this.name = name;
     this.data = data;
     this.storage = storage;
-    this.isDockerRemote = isDockerRemote;
-    this.dockerRemoteUrl = dockerRemoteUrl;
   }
 
 }

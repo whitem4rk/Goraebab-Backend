@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mysql:
-    container_name: mysql
+    container_name: goraebab_mysql
     image: mysql:latest
     ports:
       - "3306:3306"
@@ -22,8 +22,9 @@ services:
       interval: 10s
       retries: 5
 
+
   backend:
-    container_name: spring
+    container_name: goraebab_spring
     image: spring:latest
     build:
       context: ./
@@ -42,7 +43,8 @@ services:
     networks:
       goraebab_network:
         ipv4_address: 172.18.0.10
-
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 networks:
   goraebab_network:
     name: goraebab_network

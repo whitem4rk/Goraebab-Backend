@@ -10,14 +10,10 @@ import api.goraebab.domain.remote.database.entity.Storage;
 import api.goraebab.domain.remote.database.repository.StorageRepository;
 import api.goraebab.global.exception.CustomException;
 import api.goraebab.global.exception.ErrorCode;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -73,18 +69,14 @@ public class BlueprintServiceImpl implements BlueprintService {
                         .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
             }
 
-            String dataAsString = convertDataToString(blueprintReqDto.getData());
-
             Blueprint blueprint = Blueprint.builder()
-                    .name(blueprintReqDto.getName())
-                    .data(dataAsString)
+                    .name(blueprintReqDto.getBlueprintName())
+                    .data(blueprintReqDto.getData())
                     .storage(storage)
-                    .isDockerRemote(blueprintReqDto.getIsDockerRemote())
-                    .dockerRemoteUrl(blueprintReqDto.getRemoteUrl())
                     .build();
 
             blueprintRepository.save(blueprint);
-            dockerSyncService.syncDockerWithBlueprint(blueprint.getId());
+            dockerSyncService.syncDockerWithBlueprintData(blueprintReqDto.getProcessedData());
         } catch (Exception e) {
             throw new CustomException(ErrorCode.SAVE_FAILED);
         }
@@ -94,8 +86,6 @@ public class BlueprintServiceImpl implements BlueprintService {
     @Transactional
     public void modifyBlueprint(Long storageId, Long blueprintId, BlueprintReqDto blueprintReqDto) {
         try {
-            String dataAsString = convertDataToString(blueprintReqDto.getData());
-
             Blueprint blueprint;
 
             if (storageId == null) {
@@ -105,10 +95,9 @@ public class BlueprintServiceImpl implements BlueprintService {
                 blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
             }
 
-            blueprint.modify(blueprintReqDto.getName(), dataAsString);
+            blueprint.modify(blueprintReqDto.getBlueprintName(), blueprintReqDto.getData());
 
-            blueprintRepository.save(blueprint);
-            dockerSyncService.syncDockerWithBlueprint(blueprint.getId());
+            dockerSyncService.syncDockerWithBlueprintData(blueprintReqDto.getProcessedData());
         } catch (Exception e) {
             throw new CustomException(ErrorCode.MODIFY_FAILED);
         }
@@ -134,14 +123,6 @@ public class BlueprintServiceImpl implements BlueprintService {
 
     private Blueprint findBlueprintByStorageAndId(Long storageId, Long blueprintId) {
         return blueprintRepository.findByStorageIdAndId(storageId, blueprintId);
-    }
-
-    private String convertDataToString(MultipartFile file) {
-        try {
-            return new String(file.getBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new CustomException(ErrorCode.FILE_PROCESSING_ERROR);
-        }
     }
 
 }

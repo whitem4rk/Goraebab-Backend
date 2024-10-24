@@ -14,24 +14,15 @@ import api.goraebab.global.util.DockerClientUtil;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.command.InspectContainerResponse.Mount;
+//import com.github.dockerjava.api.command.InspectContainerResponse.Mount;
 import com.github.dockerjava.api.command.InspectVolumeResponse;
 import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.exception.NotFoundException;
-import com.github.dockerjava.api.model.Bind;
-import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Network;
+import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.api.model.Network.Ipam;
 import com.github.dockerjava.api.model.Network.Ipam.Config;
-import com.github.dockerjava.api.model.PortBinding;
-import com.github.dockerjava.api.model.Volume;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -183,31 +174,38 @@ public class DockerSyncServiceImpl implements DockerSyncService {
 
                 // 마운트 설정
                 List<Bind> binds = new ArrayList<>();
-                List<Volume> volumes = new ArrayList<>();
+                List<com.github.dockerjava.api.model.Mount> mounts = new ArrayList<>();
 
                 customContainer.getCustomMounts().forEach(customMount -> {
                     if (MOUNT_BIND_TYPE.equals(customMount.getType())) {
                         binds.add(new Bind(customMount.getSource(),
-                            new Volume(customMount.getDestination())));
+                                new Volume(customMount.getDestination())));
                     } else if (MOUNT_VOLUME_TYPE.equals(customMount.getType())) {
-                        volumes.add(new Volume(customMount.getDestination()));
+                        Mount mount = new Mount()
+                            .withType(MountType.VOLUME)
+                            .withSource(customMount.getSource())
+                            .withTarget(customMount.getDestination())
+                            .withReadOnly("ro".equals(customMount.getVolume().getMode()));
+
+                        mounts.add(mount);
                     }
                 });
 
                 // 포트 바인딩 및 볼륨 바인딩 설정
                 HostConfig hostConfig = HostConfig.newHostConfig()
-                    .withPortBindings(portBindings)
-                    .withBinds(binds);
+                        .withPortBindings(portBindings)
+                        .withBinds(binds)
+                        .withMounts(mounts);
 
                 // 컨테이너 생성
                 CreateContainerResponse containerResponse = dockerClient.createContainerCmd(imageName)
-                    .withName(containerName)
-                    .withHostConfig(hostConfig)
-                    .withEnv(customContainer.getCustomEnv())
-                    .withCmd(customContainer.getCustomCmd())
-                    .withNetworkMode(customNetwork.getName())
-                    .withVolumes(volumes)
-                    .exec();
+                        .withName(containerName)
+                        .withHostConfig(hostConfig)
+                        .withEnv(customContainer.getCustomEnv())
+                        .withCmd(customContainer.getCustomCmd())
+                        .withNetworkMode(customNetwork.getName())
+                        .exec();
+
                 dockerClient.startContainerCmd(containerResponse.getId()).exec();
 
                 System.out.println("Created container: " + containerName);
@@ -215,6 +213,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         }
 
     }
+
 
     private void removeAllContainers(DockerClient dockerClient) throws DockerException{
         List<Container> containerList = dockerClient.listContainersCmd().withShowAll(true).exec();
@@ -262,7 +261,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
             .flatMap(containerId -> {
                 InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(containerId).exec();
                 return Objects.requireNonNull(containerInfo.getMounts()).stream()
-                    .map(Mount::getName);
+                    .map(InspectContainerResponse.Mount::getName);
             })
             .collect(Collectors.toSet());
 

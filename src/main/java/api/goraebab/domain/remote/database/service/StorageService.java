@@ -13,5 +13,4 @@ public interface StorageService {
   void deleteStorage(Long storageId);
 
   void copyStorage(Long storageId);
-
 }

@@ -19,9 +19,7 @@ public class DaemonReqDto {
   @Schema(description = "The host address of the Docker daemon.", example = "255.255.255.255")
   private String host;
 
-  @NotNull
-  @Positive
-  @Max(value = 65535, message = "Port must be 1 ~ 65535")
+  @NotNull @Positive @Max(value = 65535, message = "Port must be 1 ~ 65535")
   @Schema(description = "The port number used to connect to the Docker daemon.", example = "2375")
   private Integer port;
 

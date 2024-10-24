@@ -19,5 +19,4 @@ public interface DaemonMapper {
   DaemonResDto entityToResDto(Daemon daemon);
 
   List<DaemonResDto> entityListToResDtoList(List<Daemon> daemonList);
-
 }

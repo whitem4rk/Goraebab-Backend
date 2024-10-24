@@ -21,8 +21,7 @@ public class Blueprint extends BaseEntity {
   @Column(nullable = false, columnDefinition = "LONGTEXT")
   private String data;
 
-  @Column
-  private Boolean isRemote = false;
+  @Column private Boolean isRemote = false;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "storage_id")

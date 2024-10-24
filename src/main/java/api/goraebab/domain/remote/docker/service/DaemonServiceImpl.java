@@ -30,7 +30,8 @@ public class DaemonServiceImpl implements DaemonService {
 
   @Override
   public void connectDaemon(DaemonReqDto daemonReqDto) {
-    boolean connected = ConnectionUtil.testDockerPing(daemonReqDto.getHost(), daemonReqDto.getPort());
+    boolean connected =
+        ConnectionUtil.testDockerPing(daemonReqDto.getHost(), daemonReqDto.getPort());
     if (connected) {
       Daemon daemon = DaemonMapper.INSTANCE.reqDtoToEntity(daemonReqDto);
       daemonRepository.save(daemon);
@@ -47,5 +48,4 @@ public class DaemonServiceImpl implements DaemonService {
       throw new CustomException(ErrorCode.DELETE_FAILED);
     }
   }
-
 }

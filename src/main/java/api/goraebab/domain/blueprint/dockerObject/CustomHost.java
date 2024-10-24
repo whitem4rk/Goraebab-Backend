@@ -21,11 +21,14 @@ public class CustomHost {
   private String ip;
 
   @Builder
-  public CustomHost(List<CustomNetwork> customNetwork, List<CustomVolume> customVolume, Boolean isLocal, String ip) {
+  public CustomHost(
+      List<CustomNetwork> customNetwork,
+      List<CustomVolume> customVolume,
+      Boolean isLocal,
+      String ip) {
     this.customNetwork = customNetwork;
     this.customVolume = customVolume;
     this.isLocal = isLocal;
     this.ip = ip;
   }
-
 }

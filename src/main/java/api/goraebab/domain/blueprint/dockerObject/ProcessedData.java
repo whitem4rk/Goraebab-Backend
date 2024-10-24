@@ -13,10 +13,8 @@ public class ProcessedData {
   @JsonProperty("host")
   private List<CustomHost> customHost;
 
-
   @Builder
   public ProcessedData(List<CustomHost> customHost) {
     this.customHost = customHost;
   }
-
 }

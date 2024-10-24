@@ -11,11 +11,9 @@ public class BlueprintRowMapper implements RowMapper<Blueprint> {
 
   @Override
   public Blueprint mapRow(ResultSet rs, int rowNum) throws SQLException {
-    Blueprint blueprint = Blueprint.builder()
-        .data(rs.getString(BLUEPRINT_DATA_COLUMN_NAME))
-        .build();
+    Blueprint blueprint =
+        Blueprint.builder().data(rs.getString(BLUEPRINT_DATA_COLUMN_NAME)).build();
 
     return blueprint;
   }
-
 }

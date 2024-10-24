@@ -37,5 +37,4 @@ public class Daemon extends BaseEntity {
     this.port = port;
     this.name = name;
   }
-
 }

@@ -37,14 +37,11 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(BlueprintController.class)
 public class BlueprintControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @MockBean
-  private BlueprintServiceImpl blueprintService;
+  @MockBean private BlueprintServiceImpl blueprintService;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
   private Long storageId;
   private Long blueprintId;
@@ -56,18 +53,27 @@ public class BlueprintControllerTest {
   void setUp() {
     storageId = 1L;
     blueprintId = 1L;
-    StorageResDto storageResDto = StorageResDto.builder()
-        .storageId(storageId)
-        .host("123.123.123.123")
-        .port(8080)
-        .dbms(DBMS.MYSQL)
-        .name("Storage1")
-        .username("root")
-        .build();
-    blueprintResDto = new BlueprintResDto(blueprintId, "Blueprint1", "Data1", false,
-        LocalDateTime.now(), LocalDateTime.now(), storageResDto);
-    blueprintsResDto = new BlueprintsResDto(blueprintId, "Blueprint1", "Data1", false,
-        LocalDateTime.now(), LocalDateTime.now());
+    StorageResDto storageResDto =
+        StorageResDto.builder()
+            .storageId(storageId)
+            .host("123.123.123.123")
+            .port(8080)
+            .dbms(DBMS.MYSQL)
+            .name("Storage1")
+            .username("root")
+            .build();
+    blueprintResDto =
+        new BlueprintResDto(
+            blueprintId,
+            "Blueprint1",
+            "Data1",
+            false,
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            storageResDto);
+    blueprintsResDto =
+        new BlueprintsResDto(
+            blueprintId, "Blueprint1", "Data1", false, LocalDateTime.now(), LocalDateTime.now());
     blueprintReqDto = new BlueprintReqDto("Blueprint2", "Data2");
   }
 
@@ -77,7 +83,8 @@ public class BlueprintControllerTest {
     List<BlueprintsResDto> blueprints = List.of(blueprintsResDto);
     given(blueprintService.getBlueprints(storageId)).willReturn(blueprints);
 
-    mockMvc.perform(get("/storage/{storageId}/blueprints", storageId))
+    mockMvc
+        .perform(get("/storage/{storageId}/blueprints", storageId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(1))
         .andExpect(jsonPath("$[0].name").value("Blueprint1"))
@@ -88,10 +95,12 @@ public class BlueprintControllerTest {
   @DisplayName("설계도 전체 목록 조회 실패")
   void getBlueprints_fail() throws Exception {
     List<BlueprintsResDto> blueprints = List.of(blueprintsResDto);
-    doThrow(new CustomException(ErrorCode.NOT_FOUND_VALUE)).when(blueprintService)
+    doThrow(new CustomException(ErrorCode.NOT_FOUND_VALUE))
+        .when(blueprintService)
         .getBlueprints(anyLong());
 
-    mockMvc.perform(get("/storage/{storageId}/blueprints", storageId))
+    mockMvc
+        .perform(get("/storage/{storageId}/blueprints", storageId))
         .andExpect(status().isNotFound())
         .andDo(print());
   }
@@ -101,7 +110,8 @@ public class BlueprintControllerTest {
   void getBlueprint() throws Exception {
     given(blueprintService.getBlueprint(anyLong(), anyLong())).willReturn(blueprintResDto);
 
-    mockMvc.perform(get("/storage/{storageId}/blueprint/{blueprintId}", storageId, blueprintId))
+    mockMvc
+        .perform(get("/storage/{storageId}/blueprint/{blueprintId}", storageId, blueprintId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("Blueprint1"))
         .andDo(print());
@@ -110,10 +120,12 @@ public class BlueprintControllerTest {
   @Test
   @DisplayName("설계도 단건 조회 실패")
   void getBlueprint_fail() throws Exception {
-    doThrow(new CustomException(ErrorCode.NOT_FOUND_VALUE)).when(blueprintService)
+    doThrow(new CustomException(ErrorCode.NOT_FOUND_VALUE))
+        .when(blueprintService)
         .getBlueprint(anyLong(), anyLong());
 
-    mockMvc.perform(get("/storage/{storageId}/blueprint/{blueprintId}", storageId, blueprintId))
+    mockMvc
+        .perform(get("/storage/{storageId}/blueprint/{blueprintId}", storageId, blueprintId))
         .andExpect(status().isNotFound())
         .andDo(print());
   }
@@ -123,9 +135,11 @@ public class BlueprintControllerTest {
   void saveBlueprint() throws Exception {
     doNothing().when(blueprintService).saveBlueprint(anyLong(), any());
 
-    mockMvc.perform(post("/storage/{storageId}/blueprint", storageId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(blueprintReqDto)))
+    mockMvc
+        .perform(
+            post("/storage/{storageId}/blueprint", storageId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(blueprintReqDto)))
         .andExpect(status().isOk())
         .andDo(print());
   }
@@ -133,12 +147,15 @@ public class BlueprintControllerTest {
   @Test
   @DisplayName("설계도 저장 실패")
   void saveBlueprint_fail() throws Exception {
-    doThrow(new CustomException(ErrorCode.NOT_FOUND_VALUE)).when(blueprintService)
+    doThrow(new CustomException(ErrorCode.NOT_FOUND_VALUE))
+        .when(blueprintService)
         .saveBlueprint(anyLong(), any());
 
-    mockMvc.perform(post("/storage/{storageId}/blueprint", storageId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(blueprintReqDto)))
+    mockMvc
+        .perform(
+            post("/storage/{storageId}/blueprint", storageId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(blueprintReqDto)))
         .andExpect(status().isNotFound())
         .andDo(print());
   }
@@ -146,9 +163,11 @@ public class BlueprintControllerTest {
   @Test
   @DisplayName("설계도 수정")
   void modifyBlueprint() throws Exception {
-    mockMvc.perform(patch("/storage/{storageId}/blueprint/{blueprintId}", storageId, blueprintId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(blueprintReqDto)))
+    mockMvc
+        .perform(
+            patch("/storage/{storageId}/blueprint/{blueprintId}", storageId, blueprintId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(blueprintReqDto)))
         .andExpect(status().isOk())
         .andDo(print());
   }
@@ -156,12 +175,15 @@ public class BlueprintControllerTest {
   @Test
   @DisplayName("설계도 수정 실패")
   void modifyBlueprint_fail() throws Exception {
-    doThrow(new CustomException(ErrorCode.NOT_FOUND_VALUE)).when(blueprintService)
+    doThrow(new CustomException(ErrorCode.NOT_FOUND_VALUE))
+        .when(blueprintService)
         .modifyBlueprint(anyLong(), anyLong(), any());
 
-    mockMvc.perform(patch("/storage/{storageId}/blueprint/{blueprintId}", storageId, blueprintId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(blueprintReqDto)))
+    mockMvc
+        .perform(
+            patch("/storage/{storageId}/blueprint/{blueprintId}", storageId, blueprintId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(blueprintReqDto)))
         .andExpect(status().isNotFound())
         .andDo(print());
   }
@@ -169,7 +191,8 @@ public class BlueprintControllerTest {
   @Test
   @DisplayName("설계도 삭제")
   void deleteBlueprint() throws Exception {
-    mockMvc.perform(delete("/storage/{storageId}/blueprint/{blueprintId}", storageId, blueprintId))
+    mockMvc
+        .perform(delete("/storage/{storageId}/blueprint/{blueprintId}", storageId, blueprintId))
         .andExpect(status().isOk())
         .andDo(print());
   }
@@ -177,12 +200,13 @@ public class BlueprintControllerTest {
   @Test
   @DisplayName("설계도 삭제 실패")
   void deleteBlueprint_fail() throws Exception {
-    doThrow(new CustomException(ErrorCode.NOT_FOUND_VALUE)).when(blueprintService)
+    doThrow(new CustomException(ErrorCode.NOT_FOUND_VALUE))
+        .when(blueprintService)
         .getBlueprint(anyLong(), anyLong());
 
-    mockMvc.perform(delete("/storage/{storageId}/blueprint/{blueprintId}", storageId, blueprintId))
+    mockMvc
+        .perform(delete("/storage/{storageId}/blueprint/{blueprintId}", storageId, blueprintId))
         .andExpect(status().isOk())
         .andDo(print());
   }
-
 }

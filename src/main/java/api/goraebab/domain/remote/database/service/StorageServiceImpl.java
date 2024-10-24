@@ -56,34 +56,37 @@ public class StorageServiceImpl implements StorageService {
 
   @Override
   @Transactional
-    public void deleteStorage(Long storageId) {
-      try {
-        storageRepository.deleteById(storageId);
-      } catch (Exception e) {
-        throw new CustomException(ErrorCode.DELETE_FAILED);
-      }
+  public void deleteStorage(Long storageId) {
+    try {
+      storageRepository.deleteById(storageId);
+    } catch (Exception e) {
+      throw new CustomException(ErrorCode.DELETE_FAILED);
     }
+  }
 
   @Override
   @Transactional
   public void copyStorage(Long storageId) {
     try {
-      Storage storage = storageRepository.findById(storageId)
+      Storage storage =
+          storageRepository
+              .findById(storageId)
               .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
 
       DataSource dataSource = ConnectionUtil.createDataSource(storage);
       JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-      List<Blueprint> copiedData = jdbcTemplate.query(SELECT_ALL_BLUEPRINTS, new BlueprintRowMapper());
+      List<Blueprint> copiedData =
+          jdbcTemplate.query(SELECT_ALL_BLUEPRINTS, new BlueprintRowMapper());
 
-      copiedData.forEach(blueprint -> {
-        blueprint.setStorage(storage);
-        blueprint.setAsRemote();
-      });
+      copiedData.forEach(
+          blueprint -> {
+            blueprint.setStorage(storage);
+            blueprint.setAsRemote();
+          });
 
       blueprintRepository.saveAll(copiedData);
     } catch (Exception e) {
       throw new CustomException(ErrorCode.COPY_FAILED);
     }
   }
-
 }

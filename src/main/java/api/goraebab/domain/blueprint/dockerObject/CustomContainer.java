@@ -30,11 +30,15 @@ public class CustomContainer {
   @JsonProperty("cmd")
   private List<String> customCmd;
 
-
   @Builder
-  public CustomContainer(String containerName, CustomImage customImage,
-      CustomNetworkSettings customNetworkSettings, List<CustomPort> customPorts,
-      List<CustomMount> customMounts, List<String> customEnv, List<String> customCmd) {
+  public CustomContainer(
+      String containerName,
+      CustomImage customImage,
+      CustomNetworkSettings customNetworkSettings,
+      List<CustomPort> customPorts,
+      List<CustomMount> customMounts,
+      List<String> customEnv,
+      List<String> customCmd) {
     this.containerName = containerName;
     this.customImage = customImage;
     this.customNetworkSettings = customNetworkSettings;
@@ -43,5 +47,4 @@ public class CustomContainer {
     this.customEnv = customEnv;
     this.customCmd = customCmd;
   }
-
 }

@@ -18,7 +18,6 @@ public class CustomMount {
 
   private String driver;
 
-
   @Builder
   public CustomMount(String type, String name, String source, String destination, String driver) {
     this.type = type;
@@ -27,5 +26,4 @@ public class CustomMount {
     this.destination = destination;
     this.driver = driver;
   }
-
 }

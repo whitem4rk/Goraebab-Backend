@@ -24,5 +24,4 @@ public interface BlueprintMapper {
 
   @IterableMapping(elementTargetType = BlueprintsResDto.class)
   List<BlueprintsResDto> toBlueprintsResDtoList(List<Blueprint> blueprints);
-
 }

@@ -1,6 +1,5 @@
 package api.goraebab.domain.remote.database.entity;
 
-
 import api.goraebab.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,8 +44,8 @@ public class Storage extends BaseEntity {
   private String password;
 
   @Builder
-  public Storage(String host, Integer port, DBMS dbms, String name, String username,
-      String password) {
+  public Storage(
+      String host, Integer port, DBMS dbms, String name, String username, String password) {
     this.host = host;
     this.port = port;
     this.dbms = dbms;
@@ -54,6 +53,4 @@ public class Storage extends BaseEntity {
     this.username = username;
     this.password = password;
   }
-
 }
-

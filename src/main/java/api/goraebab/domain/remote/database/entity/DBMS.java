@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Arrays;
 
 public enum DBMS {
-  MYSQL, POSTGRESQL, ORACLE, SQLSERVER;
-
+  MYSQL,
+  POSTGRESQL,
+  ORACLE,
+  SQLSERVER;
 
   @JsonCreator
   public static DBMS fromDBMS(String val) {
@@ -14,5 +16,4 @@ public enum DBMS {
         .findAny()
         .orElse(null);
   }
-
 }

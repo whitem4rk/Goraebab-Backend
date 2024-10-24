@@ -23,24 +23,29 @@ public class ConnectionUtil {
   private static final String DOCKER_OK_RESPONSE_BODY = "OK";
 
   private static final String DEFAULT_DATABASE_NAME = "goraebab";
-  private static final Map<DBMS, String> DBMS_DRIVERS = Map.of(
-      MYSQL, "com.mysql.cj.jdbc.Driver",
-      POSTGRESQL, "org.postgresql.Driver",
-      ORACLE, "oracle.jdbc.driver.OracleDriver",
-      SQLSERVER, "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-  );
+  private static final Map<DBMS, String> DBMS_DRIVERS =
+      Map.of(
+          MYSQL, "com.mysql.cj.jdbc.Driver",
+          POSTGRESQL, "org.postgresql.Driver",
+          ORACLE, "oracle.jdbc.driver.OracleDriver",
+          SQLSERVER, "com.microsoft.sqlserver.jdbc.SQLServerDriver");
 
-  private static final Map<DBMS, String> DBMS_URL_PREFIX = Map.of(
-      MYSQL, "jdbc:mysql://",
-      POSTGRESQL, "jdbc:postgresql://",
-      ORACLE, "jdbc:oracle:thin:@",
-      SQLSERVER, "jdbc:sqlserver://"
-  );
+  private static final Map<DBMS, String> DBMS_URL_PREFIX =
+      Map.of(
+          MYSQL, "jdbc:mysql://",
+          POSTGRESQL, "jdbc:postgresql://",
+          ORACLE, "jdbc:oracle:thin:@",
+          SQLSERVER, "jdbc:sqlserver://");
 
   public static DataSource createDataSource(StorageReqDto storageReqDto) {
     DriverManagerDataSource dataSource = new DriverManagerDataSource();
-    String url = DBMS_URL_PREFIX.get(storageReqDto.getDbms()) +
-        storageReqDto.getHost() + ":" + storageReqDto.getPort() + "/" + DEFAULT_DATABASE_NAME;
+    String url =
+        DBMS_URL_PREFIX.get(storageReqDto.getDbms())
+            + storageReqDto.getHost()
+            + ":"
+            + storageReqDto.getPort()
+            + "/"
+            + DEFAULT_DATABASE_NAME;
 
     dataSource.setDriverClassName(DBMS_DRIVERS.get(storageReqDto.getDbms()));
     dataSource.setUrl(url);
@@ -52,8 +57,13 @@ public class ConnectionUtil {
 
   public static DataSource createDataSource(Storage storage) {
     DriverManagerDataSource dataSource = new DriverManagerDataSource();
-    String url = DBMS_URL_PREFIX.get(storage.getDbms()) +
-        storage.getHost() + ":" + storage.getPort() + "/" + DEFAULT_DATABASE_NAME;
+    String url =
+        DBMS_URL_PREFIX.get(storage.getDbms())
+            + storage.getHost()
+            + ":"
+            + storage.getPort()
+            + "/"
+            + DEFAULT_DATABASE_NAME;
 
     dataSource.setDriverClassName(DBMS_DRIVERS.get(storage.getDbms()));
     dataSource.setUrl(url);
@@ -66,14 +76,10 @@ public class ConnectionUtil {
   public static boolean testDockerPing(String host, int port) {
     String requestUrl = String.format(DOCKER_PING_URL, host, port);
     try {
-      String response = restClient.get()
-          .uri(requestUrl)
-          .retrieve()
-          .body(String.class);
+      String response = restClient.get().uri(requestUrl).retrieve().body(String.class);
       return Objects.equals(response, DOCKER_OK_RESPONSE_BODY);
     } catch (RestClientException e) {
       return false;
     }
   }
-
 }

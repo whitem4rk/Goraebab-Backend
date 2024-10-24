@@ -19,5 +19,4 @@ public interface StorageMapper {
   StorageResDto entityToResDto(Storage storage);
 
   List<StorageResDto> entityListToResDtoList(List<Storage> storageList);
-
 }

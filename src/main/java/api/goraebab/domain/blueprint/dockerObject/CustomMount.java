@@ -18,14 +18,20 @@ public class CustomMount {
 
   private String driver;
 
+  private String alias;
+
+  private CustomVolume volume;
+
 
   @Builder
-  public CustomMount(String type, String name, String source, String destination, String driver) {
+  public CustomMount(String type, String name, String source, String destination, String driver, String alias, CustomVolume volume) {
     this.type = type;
     this.name = name;
     this.source = source;
     this.destination = destination;
     this.driver = driver;
+    this.alias = alias;
+    this.volume = volume;
   }
 
 }

@@ -21,9 +21,20 @@ public class Blueprint extends BaseEntity {
   @Column(nullable = false, columnDefinition = "LONGTEXT")
   private String data;
 
+  @Column
+  private Boolean isRemote = false;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "storage_id")
   private Storage storage;
+
+  public void setStorage(Storage storage) {
+    this.storage = storage;
+  }
+
+  public void setAsRemote() {
+    this.isRemote = true;
+  }
 
   public void modify(String name, String data) {
     if (name != null) {
@@ -35,10 +46,10 @@ public class Blueprint extends BaseEntity {
   }
 
   @Builder
-  public Blueprint(String name, String data, Storage storage) {
+  public Blueprint(String name, String data, Boolean isRemote, Storage storage) {
     this.name = name;
     this.data = data;
+    this.isRemote = isRemote;
     this.storage = storage;
   }
-
 }

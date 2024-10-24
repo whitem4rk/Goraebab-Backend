@@ -72,6 +72,7 @@ public class BlueprintServiceImpl implements BlueprintService {
             Blueprint blueprint = Blueprint.builder()
                     .name(blueprintReqDto.getBlueprintName())
                     .data(blueprintReqDto.getData())
+                    .isRemote(false)
                     .storage(storage)
                     .build();
 

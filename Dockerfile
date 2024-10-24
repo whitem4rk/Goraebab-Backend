@@ -1,8 +1,10 @@
-FROM openjdk:17-jdk-alpine
+FROM openjdk:17-jdk-slim
 
 WORKDIR /app
 
 COPY . .
+
+RUN apt-get update && apt-get install -y findutils
 
 RUN chmod +x ./gradlew
 

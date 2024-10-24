@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.webjars.NotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +75,7 @@ public class StorageServiceImpl implements StorageService {
       JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
       List<Blueprint> copiedData = jdbcTemplate.query(SELECT_ALL_BLUEPRINTS, new BlueprintRowMapper());
 
-      copiedData.forEach(Blueprint::setAsRemote);
+      copiedData.forEach(blueprint -> blueprint.setStorage(storage));
 
       blueprintRepository.saveAll(copiedData);
     } catch (Exception e) {

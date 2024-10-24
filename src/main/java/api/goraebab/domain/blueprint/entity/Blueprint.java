@@ -25,6 +25,10 @@ public class Blueprint extends BaseEntity {
   @JoinColumn(name = "storage_id")
   private Storage storage;
 
+  public void setStorage(Storage storage) {
+    this.storage = storage;
+  }
+
   public void modify(String name, String data) {
     if (name != null) {
       this.name = name;

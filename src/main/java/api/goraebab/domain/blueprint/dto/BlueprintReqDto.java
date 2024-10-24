@@ -22,7 +22,8 @@ public class BlueprintReqDto {
   @Schema(description = "The raw data associated with the blueprint.")
   private String data;
 
-  @NotNull(message = "ProcessedData must not be blank") @Schema(description = "Parsed data associated with the blueprint.")
+  @NotNull(message = "ProcessedData must not be blank")
+  @Schema(description = "Parsed data associated with the blueprint.")
   private ProcessedData processedData;
 
   @Builder

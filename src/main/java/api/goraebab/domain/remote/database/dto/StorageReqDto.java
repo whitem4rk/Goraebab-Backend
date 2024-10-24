@@ -26,7 +26,9 @@ public class StorageReqDto {
   @Schema(description = "The host address of the storage.", example = "255.255.255.255")
   private String host;
 
-  @NotNull @Positive @Max(value = 65535, message = "Port must be 1 ~ 65535")
+  @NotNull
+  @Positive
+  @Max(value = 65535, message = "Port must be 1 ~ 65535")
   @Schema(description = "The port number used to connect to the storage.", example = "3306")
   private Integer port;
 

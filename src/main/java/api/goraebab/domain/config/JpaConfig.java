@@ -18,13 +18,17 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 public class JpaConfig {
 
-  @Value("${spring.datasource.url}") private String datasourceUrl;
+  @Value("${spring.datasource.url}")
+  private String datasourceUrl;
 
-  @Value("${spring.datasource.username}") private String username;
+  @Value("${spring.datasource.username}")
+  private String username;
 
-  @Value("${spring.datasource.password}") private String password;
+  @Value("${spring.datasource.password}")
+  private String password;
 
-  @Value("${spring.datasource.driver-class-name}") private String driverClassName;
+  @Value("${spring.datasource.driver-class-name}")
+  private String driverClassName;
 
   private final JpaProperties jpaProperties;
 

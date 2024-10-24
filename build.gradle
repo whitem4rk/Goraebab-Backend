@@ -63,10 +63,18 @@ dependencies {
 
 spotless {
     java {
-        importOrder()
+        importOrder(
+                "java",
+                "javax",
+                "lombok",
+                "org.springframework",
+                "",
+                "org.junit",
+                "com.guide"
+        )
         removeUnusedImports()
         googleJavaFormat()
-        formatAnnotations()
+        endWithNewline()
     }
 }
 

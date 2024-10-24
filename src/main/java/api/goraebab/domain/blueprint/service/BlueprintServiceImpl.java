@@ -1,5 +1,6 @@
 package api.goraebab.domain.blueprint.service;
 
+import api.goraebab.domain.blueprint.dockerObject.ProcessedData;
 import api.goraebab.domain.blueprint.dto.BlueprintReqDto;
 import api.goraebab.domain.blueprint.dto.BlueprintResDto;
 import api.goraebab.domain.blueprint.dto.BlueprintsResDto;
@@ -11,6 +12,8 @@ import api.goraebab.domain.remote.database.repository.StorageRepository;
 import api.goraebab.global.exception.CustomException;
 import api.goraebab.global.exception.ErrorCode;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ public class BlueprintServiceImpl implements BlueprintService {
     private final BlueprintRepository blueprintRepository;
     private final StorageRepository storageRepository;
     private final DockerSyncServiceImpl dockerSyncService;
+    private final ObjectMapper objectMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -69,9 +73,11 @@ public class BlueprintServiceImpl implements BlueprintService {
                         .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
             }
 
+            String processedData = convertProcessedDataToJson(blueprintReqDto.getProcessedData());
+
             Blueprint blueprint = Blueprint.builder()
                     .name(blueprintReqDto.getBlueprintName())
-                    .data(blueprintReqDto.getData())
+                    .data(processedData)
                     .isRemote(false)
                     .storage(storage)
                     .build();
@@ -96,7 +102,8 @@ public class BlueprintServiceImpl implements BlueprintService {
                 blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
             }
 
-            blueprint.modify(blueprintReqDto.getBlueprintName(), blueprintReqDto.getData());
+            String processedData = convertProcessedDataToJson(blueprintReqDto.getProcessedData());
+            blueprint.modify(blueprintReqDto.getBlueprintName(), processedData);
 
             dockerSyncService.syncDockerWithBlueprintData(blueprintReqDto.getProcessedData());
         } catch (Exception e) {
@@ -124,6 +131,14 @@ public class BlueprintServiceImpl implements BlueprintService {
 
     private Blueprint findBlueprintByStorageAndId(Long storageId, Long blueprintId) {
         return blueprintRepository.findByStorageIdAndId(storageId, blueprintId);
+    }
+
+    private String convertProcessedDataToJson(ProcessedData processedData) {
+        try {
+            return objectMapper.writeValueAsString(processedData);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.CONVERSION_FAILED);
+        }
     }
 
 }

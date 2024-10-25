@@ -12,14 +12,11 @@ public class CustomVolume {
 
   private String driver;
 
-  private String mode;
-
 
   @Builder
-  public CustomVolume(String name, String driver, String mode) {
+  public CustomVolume(String name, String driver) {
     this.name = name;
     this.driver = driver;
-    this.mode = mode;
   }
 
 }

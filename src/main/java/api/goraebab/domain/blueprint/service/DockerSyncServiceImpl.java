@@ -14,7 +14,6 @@ import api.goraebab.global.util.DockerClientUtil;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-//import com.github.dockerjava.api.command.InspectContainerResponse.Mount;
 import com.github.dockerjava.api.command.InspectVolumeResponse;
 import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.exception.NotFoundException;
@@ -117,13 +116,10 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                     .withDriver(customNetwork.getDriver())
                     .withIpam(new Ipam().withConfig(ipamConfigList))
                     .exec();
-
-                System.out.println("Created network: " + customNetworkName);
             }
         }
 
     }
-
 
     private void syncVolumes(DockerClient dockerClient, List<CustomVolume> customVolumeList) throws DockerException {
 
@@ -141,13 +137,10 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                     .withName(volumeName)
                     .withDriver(customVolume.getDriver())
                     .exec();
-
-                System.out.println("Created volume: " + volumeName);
             }
         }
 
     }
-
 
     private void syncContainers(DockerClient dockerClient, List<CustomNetwork> customNetworkList)
         throws DockerException, InterruptedException {
@@ -162,9 +155,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                     dockerClient.inspectImageCmd(imageName).exec();
                 } catch (NotFoundException e) {
                     // 이미지가 없으면 pull
-                    System.out.println("Image not found: " + imageName + ", pulling the image...");
                     dockerClient.pullImageCmd(imageName).withTag(tag).start().awaitCompletion();
-                    System.out.println("Pulled image: " + imageName);
                 }
 
                 // 포트 바인딩 설정
@@ -174,7 +165,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
 
                 // 마운트 설정
                 List<Bind> binds = new ArrayList<>();
-                List<com.github.dockerjava.api.model.Mount> mounts = new ArrayList<>();
+                List<Mount> mounts = new ArrayList<>();
 
                 customContainer.getCustomMounts().forEach(customMount -> {
                     if (MOUNT_BIND_TYPE.equals(customMount.getType())) {
@@ -185,7 +176,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                             .withType(MountType.VOLUME)
                             .withSource(customMount.getSource())
                             .withTarget(customMount.getDestination())
-                            .withReadOnly("ro".equals(customMount.getVolume().getMode()));
+                            .withReadOnly("ro".equals(customMount.getMode()));
 
                         mounts.add(mount);
                     }
@@ -207,14 +198,11 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                         .exec();
 
                 dockerClient.startContainerCmd(containerResponse.getId()).exec();
-
-                System.out.println("Created container: " + containerName);
             }
         }
 
     }
-
-
+    
     private void removeAllContainers(DockerClient dockerClient) throws DockerException{
         List<Container> containerList = dockerClient.listContainersCmd().withShowAll(true).exec();
 
@@ -234,7 +222,6 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                     dockerClient.stopContainerCmd(container.getId()).exec();
                 }
                 dockerClient.removeContainerCmd(container.getId()).exec();
-                System.out.println("Deleted container: " + Arrays.toString(containerNames));
             }
         }
     }
@@ -246,7 +233,6 @@ public class DockerSyncServiceImpl implements DockerSyncService {
             String networkName = network.getName();
             if (!EXCLUDED_NETWORK_SET.contains(networkName)) {
                 dockerClient.removeNetworkCmd(network.getId()).exec();
-                System.out.println("Deleted network: " + networkName);
             }
         }
     }
@@ -270,7 +256,6 @@ public class DockerSyncServiceImpl implements DockerSyncService {
             String volumeName = volume.getName();
             if (!usedVolumes.contains(volumeName)) {
                 dockerClient.removeVolumeCmd(volumeName).exec();
-                System.out.println("Deleted volume: " + volumeName);
             }
         }
     }

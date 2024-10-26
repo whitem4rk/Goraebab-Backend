@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgresql:
-    container_name: postgresql
+    container_name: goraebab_postgresql
     image: postgres:latest
     ports:
       - "5432:5432"
@@ -26,15 +26,16 @@ services:
 
 
   backend:
-    container_name: spring
+    container_name: goraebab_spring
     image: spring:latest
     build:
       context: ./
     ports:
       - "2387:2387"
+      - "5005:5005"
     environment:
       spring.profiles.active: postgresql
-      spring.datasource.url: jdbc:postgresql://172.17.0.1:5432/goraebab
+      spring.datasource.url: jdbc:postgresql://172.18.0.20:5432/goraebab
       spring.datasource.username: postgres
       spring.datasource.password: root
       spring.datasource.driver-class-name: org.postgresql.Driver
@@ -44,6 +45,8 @@ services:
     networks:
       goraebab_network:
         ipv4_address: 172.18.0.10
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 networks:
   goraebab_network:

@@ -1,5 +1,6 @@
 package api.goraebab.global.util;
 
+import static api.goraebab.domain.remote.database.entity.DBMS.MARIADB;
 import static api.goraebab.domain.remote.database.entity.DBMS.MYSQL;
 import static api.goraebab.domain.remote.database.entity.DBMS.ORACLE;
 import static api.goraebab.domain.remote.database.entity.DBMS.POSTGRESQL;
@@ -25,6 +26,7 @@ public class ConnectionUtil {
   private static final String DEFAULT_DATABASE_NAME = "goraebab";
   private static final Map<DBMS, String> DBMS_DRIVERS = Map.of(
       MYSQL, "com.mysql.cj.jdbc.Driver",
+      MARIADB, "org.mariadb.jdbc.Driver",
       POSTGRESQL, "org.postgresql.Driver",
       ORACLE, "oracle.jdbc.driver.OracleDriver",
       SQLSERVER, "com.microsoft.sqlserver.jdbc.SQLServerDriver"
@@ -32,6 +34,7 @@ public class ConnectionUtil {
 
   private static final Map<DBMS, String> DBMS_URL_PREFIX = Map.of(
       MYSQL, "jdbc:mysql://",
+      MARIADB, "jdbc:mariadb://",
       POSTGRESQL, "jdbc:postgresql://",
       ORACLE, "jdbc:oracle:thin:@",
       SQLSERVER, "jdbc:sqlserver://"

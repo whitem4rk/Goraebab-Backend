@@ -18,7 +18,7 @@ public class Blueprint extends BaseEntity {
   @Column(nullable = false)
   private String name;
 
-  @Column(nullable = false, columnDefinition = "LONGTEXT")
+  @Column(nullable = false, columnDefinition = "json")
   private String data;
 
   @Column

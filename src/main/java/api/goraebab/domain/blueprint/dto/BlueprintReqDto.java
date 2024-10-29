@@ -18,19 +18,14 @@ public class BlueprintReqDto {
     @Schema(description = "The name of the blueprint.", example = "Project1 blueprint")
     private String blueprintName;
 
-    @NotBlank(message = "Data must not be blank")
-    @Schema(description = "The raw data associated with the blueprint.")
-    private String data;
-
     @NotNull(message = "ProcessedData must not be blank")
     @Schema(description = "Parsed data associated with the blueprint.")
     private ProcessedData processedData;
 
 
     @Builder
-    public BlueprintReqDto(String blueprintName, String data, ProcessedData processedData) {
+    public BlueprintReqDto(String blueprintName, ProcessedData processedData) {
         this.blueprintName = blueprintName;
-        this.data = data;
         this.processedData = processedData;
     }
 

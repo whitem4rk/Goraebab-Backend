@@ -11,7 +11,11 @@ import api.goraebab.domain.remote.database.entity.Storage;
 import api.goraebab.domain.remote.database.repository.StorageRepository;
 import api.goraebab.global.exception.CustomException;
 import api.goraebab.global.exception.ErrorCode;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -83,9 +87,23 @@ public class BlueprintServiceImpl implements BlueprintService {
                     .build();
 
             blueprintRepository.save(blueprint);
-            dockerSyncService.syncDockerWithBlueprintData(blueprintReqDto.getProcessedData());
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.SAVE_FAILED);
+
+            List<Map<String, Object>> syncResults = dockerSyncService.syncDockerWithBlueprintData(blueprintReqDto.getProcessedData());
+
+            List<Map<String, Object>> failedContainers = syncResults.stream()
+                    .filter(result -> "failed".equals(result.get("status")))
+                    .collect(Collectors.toList());
+
+            List<Map<String, Object>> succeededContainers = syncResults.stream()
+                    .filter(result -> "success".equals(result.get("status")))
+                    .collect(Collectors.toList());
+
+            if (!failedContainers.isEmpty()) {
+                throw new CustomException(ErrorCode.SAVE_FAILED, "Failed to create some containers", failedContainers, succeededContainers);
+            }
+
+        } catch (CustomException e) {
+            throw e;
         }
     }
 
@@ -105,11 +123,25 @@ public class BlueprintServiceImpl implements BlueprintService {
             String processedData = convertProcessedDataToJson(blueprintReqDto.getProcessedData());
             blueprint.modify(blueprintReqDto.getBlueprintName(), processedData);
 
-            dockerSyncService.syncDockerWithBlueprintData(blueprintReqDto.getProcessedData());
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.MODIFY_FAILED);
+            List<Map<String, Object>> syncResults = dockerSyncService.syncDockerWithBlueprintData(blueprintReqDto.getProcessedData());
+
+            List<Map<String, Object>> failedContainers = syncResults.stream()
+                    .filter(result -> "failed".equals(result.get("status")))
+                    .collect(Collectors.toList());
+
+            List<Map<String, Object>> succeededContainers = syncResults.stream()
+                    .filter(result -> "success".equals(result.get("status")))
+                    .collect(Collectors.toList());
+
+            if (!failedContainers.isEmpty()) {
+                throw new CustomException(ErrorCode.MODIFY_FAILED, "Failed to update some containers", failedContainers, succeededContainers);
+            }
+
+        } catch (CustomException e) {
+            throw e;
         }
     }
+
 
     @Override
     @Transactional

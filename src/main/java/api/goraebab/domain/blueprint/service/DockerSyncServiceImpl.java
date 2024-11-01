@@ -33,6 +33,13 @@ import org.springframework.stereotype.Service;
 public class DockerSyncServiceImpl implements DockerSyncService {
 
     private final DockerClientUtil dockerClientFactory;
+    private static final String CONTAINER_NAME_KEY = "containerName";
+    private static final String READ_ONLY_MODE = "ro";
+    private static final String CONTAINER_RESULT_STATUS_KEY = "status";
+    private static final String CONTAINER_RESULT_MESSAGE_KEY = "message";
+    private final static String CONTAINER_STATUS_SUCCESS = "success";
+    private static final String CONTAINER_STATUS_FAILED = "failed";
+    private static final String CONTAINER_START_SUCCESS_MESSAGE = "Container started successfully.";
 
     private static final String LOCAL_HOST_IP = "host.docker.internal";
     private static final int DOCKER_DAEMON_PORT = 2375;
@@ -157,7 +164,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
             for (CustomContainer customContainer : customNetwork.getCustomContainers()) {
                 String containerName = customContainer.getContainerName();
                 Map<String, Object> containerResult = new HashMap<>();
-                containerResult.put("containerName", containerName);
+                containerResult.put(CONTAINER_NAME_KEY, containerName);
 
                 try {
                     String imageName = customContainer.getCustomImage().getName();
@@ -189,7 +196,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                                     .withType(MountType.VOLUME)
                                     .withSource(customMount.getName())
                                     .withTarget(customMount.getDestination())
-                                    .withReadOnly("ro".equals(customMount.getMode()));
+                                    .withReadOnly(READ_ONLY_MODE.equals(customMount.getMode()));
 
                             mounts.add(mount);
                         }
@@ -212,17 +219,19 @@ public class DockerSyncServiceImpl implements DockerSyncService {
 
                     dockerClient.startContainerCmd(containerResponse.getId()).exec();
 
-                    containerResult.put("status", "success");
-                    containerResult.put("message", "Container started successfully.");
+                    containerResult.put(CONTAINER_RESULT_STATUS_KEY, CONTAINER_STATUS_SUCCESS);
+                    containerResult.put(CONTAINER_RESULT_MESSAGE_KEY, CONTAINER_START_SUCCESS_MESSAGE);
+
                 } catch (Exception e) {
-                    containerResult.put("status", "failed");
-                    containerResult.put("message", e.getMessage());
+                    containerResult.put(CONTAINER_RESULT_STATUS_KEY, CONTAINER_STATUS_FAILED);
+                    containerResult.put(CONTAINER_RESULT_MESSAGE_KEY, e.getMessage());
                 }
+
                 containerResults.add(containerResult);
             }
         }
-        return containerResults;
 
+        return containerResults;
     }
 
     private void removeAllContainers(DockerClient dockerClient) throws DockerException{

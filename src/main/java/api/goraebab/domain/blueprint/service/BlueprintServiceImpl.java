@@ -104,8 +104,6 @@ public class BlueprintServiceImpl implements BlueprintService {
 
         } catch (CustomException e) {
             throw e;
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.SAVE_FAILED, e);
         }
     }
 
@@ -141,8 +139,6 @@ public class BlueprintServiceImpl implements BlueprintService {
 
         } catch (CustomException e) {
             throw e;
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.MODIFY_FAILED, e);
         }
     }
 

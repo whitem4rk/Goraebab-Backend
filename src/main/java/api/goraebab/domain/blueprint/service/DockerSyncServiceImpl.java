@@ -56,7 +56,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
 
             for (CustomHost customHost : customHosts) {
                 //    2. local, remote 연결 시도(`/_ping`), 확인
-                if (customHost.getIsLocal()) {
+                if (!customHost.getIsRemote()) {
                     testDockerPing(LOCAL_HOST_IP, DOCKER_DAEMON_PORT);
                     dockerClient = dockerClientFactory.createLocalDockerClient();
                 } else {

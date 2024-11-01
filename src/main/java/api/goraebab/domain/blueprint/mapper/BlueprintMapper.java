@@ -42,5 +42,4 @@ public interface BlueprintMapper {
       throw new CustomException(ErrorCode.CONVERSION_FAILED);
     }
   }
-
 }

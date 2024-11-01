@@ -22,9 +22,15 @@ public class CustomMount {
 
   private String mode;
 
-
   @Builder
-  public CustomMount(String type, String name, String source, String destination, String driver, String alias, String mode) {
+  public CustomMount(
+      String type,
+      String name,
+      String source,
+      String destination,
+      String driver,
+      String alias,
+      String mode) {
     this.type = type;
     this.name = name;
     this.source = source;
@@ -33,5 +39,4 @@ public class CustomMount {
     this.alias = alias;
     this.mode = mode;
   }
-
 }

@@ -18,8 +18,7 @@ import lombok.NoArgsConstructor;
 public class StorageReqDto {
 
   private static final String USERNAME_REGEX = "^[a-zA-Z0-9_]{1,32}$";
-  private static final String PASSWORD_REGEX =
-      "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*()_+])[A-Za-z\\d!@#$%^&*()_+]{8,128}$";
+  private static final String PASSWORD_REGEX = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*()_+])[A-Za-z\\d!@#$%^&*()_+]{8,128}$";
 
   @NotBlank
   @Size(max = 255, message = "Host must be less than 255 characters")
@@ -33,9 +32,8 @@ public class StorageReqDto {
   private Integer port;
 
   @ValidEnum(target = DBMS.class)
-  @Schema(
-      description = "The type of DBMS. Choose one from [MYSQL, POSTGRESQL, ORACLE, or SQLSERVER].",
-      example = "MYSQL")
+  @Schema(description = "The type of DBMS. Choose one from [MYSQL, MARIADB, POSTGRESQL, ORACLE, or SQLSERVER]."
+  ,example = "MYSQL")
   private DBMS dbms;
 
   @NotBlank
@@ -44,24 +42,21 @@ public class StorageReqDto {
   private String name;
 
   @NotBlank
-  @Pattern(
-      regexp = USERNAME_REGEX,
-      message =
-          "Username must be 1-32 characters long and can only contain letters, numbers, and underscores")
+  @Pattern(regexp = USERNAME_REGEX,
+      message = "Username must be 1-32 characters long and can only contain letters, numbers, and underscores")
   @Schema(description = "The username used to connect to DBMS.", example = "root")
   private String username;
 
   @NotBlank
-  @Pattern(
-      regexp = PASSWORD_REGEX,
-      message =
-          "Password must be 8-128 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.")
+  @Pattern(regexp = PASSWORD_REGEX,
+      message = "Password must be 8-128 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.")
   @Schema(description = "The password used to connect to DBMS.", example = "root")
   private String password;
 
+
   @Builder
-  public StorageReqDto(
-      String host, Integer port, DBMS dbms, String name, String username, String password) {
+  public StorageReqDto(String host, Integer port, DBMS dbms, String name, String username,
+      String password) {
     this.host = host;
     this.port = port;
     this.dbms = dbms;
@@ -69,4 +64,5 @@ public class StorageReqDto {
     this.username = username;
     this.password = password;
   }
+
 }

@@ -1,4 +1,4 @@
-package api.goraebab.domain.config;
+package api.goraebab.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

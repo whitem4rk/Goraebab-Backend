@@ -22,9 +22,12 @@ public class CustomNetwork {
   @JsonProperty("containers")
   private List<CustomContainer> customContainers;
 
-
   @Builder
-  public CustomNetwork(String id, String name, String driver, CustomIpam customIpam,
+  public CustomNetwork(
+      String id,
+      String name,
+      String driver,
+      CustomIpam customIpam,
       List<CustomContainer> customContainers) {
     this.id = id;
     this.name = name;
@@ -32,5 +35,4 @@ public class CustomNetwork {
     this.customIpam = customIpam;
     this.customContainers = customContainers;
   }
-
 }

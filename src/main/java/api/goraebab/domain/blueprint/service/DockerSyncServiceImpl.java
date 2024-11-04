@@ -51,6 +51,8 @@ public class DockerSyncServiceImpl implements DockerSyncService {
     private static final String MOUNT_BIND_TYPE = "bind";
     private static final String MOUNT_VOLUME_TYPE = "volume";
     private static final String CONTAINER_RUNNING_STATE = "running";
+    private static final String DEFAULT_BRIDGE_NETWORK_SUBNET = "172.17.0.0/16";
+    private static final String DEFAULT_BRIDGE_NETWORK_NAME = "bridge";
 
 
     @Override
@@ -105,8 +107,20 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         return containerResults;
     }
 
+    private void customNetworkValidationCheck(List<CustomNetwork> customNetworkList) {
+        for (CustomNetwork customNetwork : customNetworkList) {
+            for (CustomConfig config : customNetwork.getCustomIpam().getCustomConfig()) {
+                if (customNetwork.getName().equals(DEFAULT_BRIDGE_NETWORK_NAME)
+                    && config.getSubnet().equals(DEFAULT_BRIDGE_NETWORK_SUBNET)) {
+                    throw new CustomException(ErrorCode.NETWORK_CREATION_FAILED);
+                }
+            }
+        }
+    }
+
     private void syncNetworks(DockerClient dockerClient, List<CustomNetwork> customNetworkList) throws DockerException {
 
+        customNetworkValidationCheck(customNetworkList);
         List<Network> existingNetworks = dockerClient.listNetworksCmd().exec();
 
         for (CustomNetwork customNetwork : customNetworkList) {

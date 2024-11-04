@@ -13,6 +13,7 @@ import api.goraebab.global.exception.ErrorCode;
 import api.goraebab.global.util.DockerClientUtil;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.CreateNetworkResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectVolumeResponse;
 import com.github.dockerjava.api.exception.DockerException;
@@ -77,12 +78,12 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                 //  network - `none` , `bridge`, `customHost` , `goraebab_network`
                 //  container - `goraebab-backend`
                 removeAllContainers(dockerClient);
-                removeAllNetworks(dockerClient);
+                removeAllNetworks(dockerClient, customHost);
                 removeAllVolumes(dockerClient);
 
                 // 4. network list 추출
                 // default network`인지 확인하고 만약 아니라면 생성
-                syncNetworks(dockerClient, customHost.getCustomNetwork());
+                syncNetworks(dockerClient, customHost);
 
                 // 5. volume list 추출
                 // volume 생성
@@ -105,11 +106,11 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         return containerResults;
     }
 
-    private void syncNetworks(DockerClient dockerClient, List<CustomNetwork> customNetworkList) throws DockerException {
+    private void syncNetworks(DockerClient dockerClient, CustomHost customHost) throws DockerException {
 
         List<Network> existingNetworks = dockerClient.listNetworksCmd().exec();
 
-        for (CustomNetwork customNetwork : customNetworkList) {
+        for (CustomNetwork customNetwork : customHost.getCustomNetwork()) {
             String customNetworkName = customNetwork.getName();
             boolean networkExists = existingNetworks.stream()
                     .anyMatch(existingNetwork -> existingNetwork.getName().equals(customNetworkName));
@@ -124,11 +125,13 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                     ipamConfigList.add(ipamConfig);
                 }
 
-                dockerClient.createNetworkCmd()
-                        .withName(customNetworkName)
-                        .withDriver(customNetwork.getDriver())
-                        .withIpam(new Ipam().withConfig(ipamConfigList))
-                        .exec();
+                CreateNetworkResponse response = dockerClient.createNetworkCmd()
+                    .withName(customNetworkName)
+                    .withDriver(customNetwork.getDriver())
+                    .withIpam(new Ipam().withConfig(ipamConfigList))
+                    .exec();
+
+                updateCustomNetworkIdIfNeeded(customHost, customNetworkName, response.getId());
             }
         }
 
@@ -257,13 +260,29 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         }
     }
 
-    private void removeAllNetworks(DockerClient dockerClient) throws DockerException{
+    private void updateCustomNetworkIdIfNeeded(CustomHost customHost, String networkName, String networkId) {
+        for (CustomNetwork customNetwork : customHost.getCustomNetwork()) {
+            if (customNetwork.getName().equals(networkName)) {
+                customNetwork.setId(networkId);
+            }
+        }
+    }
+
+    private void removeAllNetworks(DockerClient dockerClient, CustomHost customHost) throws DockerException{
         List<Network> networkList = dockerClient.listNetworksCmd().exec();
+        Set<String> existNetworkList = new HashSet<>();
+
+        for (CustomNetwork customNetwork : customHost.getCustomNetwork()) {
+            existNetworkList.add(customNetwork.getName());
+        }
 
         for (Network network : networkList) {
             String networkName = network.getName();
-            if (!EXCLUDED_NETWORK_SET.contains(networkName)) {
+            if (!EXCLUDED_NETWORK_SET.contains(networkName) && !existNetworkList.contains(
+                networkName)) {
                 dockerClient.removeNetworkCmd(network.getId()).exec();
+            } else {
+                updateCustomNetworkIdIfNeeded(customHost, networkName, network.getId());
             }
         }
     }

@@ -47,8 +47,4 @@ public class CustomContainer {
     this.customCmd = customCmd;
   }
 
-  public void setContainerId(String containerId) {
-    this.containerId = containerId;
-  }
-
 }

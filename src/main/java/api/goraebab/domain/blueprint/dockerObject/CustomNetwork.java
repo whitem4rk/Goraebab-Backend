@@ -33,8 +33,4 @@ public class CustomNetwork {
     this.customContainers = customContainers;
   }
 
-  public void setId(String id) {
-    this.id = id;
-  }
-
 }

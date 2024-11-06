@@ -44,7 +44,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
     private static final String LOCAL_HOST_IP = "host.docker.internal";
     private static final int DOCKER_DAEMON_PORT = 2375;
     public static final Set<String> EXCLUDED_CONTAINER_NAME = new HashSet<>(
-            Arrays.asList("/goraebab_spring", "/goraebab_mysql", "/goraebab_mariadb",
+            Arrays.asList("goraebab_next", "/goraebab_spring", "/goraebab_mysql", "/goraebab_mariadb",
                     "/goraebab_postgresql", "/goraebab_oracle"));
     private static final Set<String> EXCLUDED_NETWORK_SET = new HashSet<>(
             Arrays.asList("bridge", "host", "none", "goraebab_network"));

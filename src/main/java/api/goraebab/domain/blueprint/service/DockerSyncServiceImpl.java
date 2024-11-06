@@ -111,7 +111,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         for (CustomNetwork customNetwork : customNetworkList) {
             for (CustomConfig config : customNetwork.getCustomIpam().getCustomConfig()) {
                 if (customNetwork.getName().equals(DEFAULT_BRIDGE_NETWORK_NAME)
-                    && config.getSubnet().equals(DEFAULT_BRIDGE_NETWORK_SUBNET)) {
+                    && !config.getSubnet().equals(DEFAULT_BRIDGE_NETWORK_SUBNET)) {
                     throw new CustomException(ErrorCode.NETWORK_CREATION_FAILED);
                 }
             }
@@ -222,14 +222,24 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                             .withBinds(binds)
                             .withMounts(mounts);
 
+                    ContainerNetwork containerNetwork = new ContainerNetwork()
+                        .withIpamConfig(new ContainerNetwork.Ipam())
+                        .withIpv4Address(customContainer.getCustomNetworkSettings().getIpAddress()); // IP 주소 설정
+
                     // 컨테이너 생성
                     CreateContainerResponse containerResponse = dockerClient.createContainerCmd(imageName)
                             .withName(containerName)
                             .withHostConfig(hostConfig)
                             .withEnv(customContainer.getCustomEnv())
                             .withCmd(customContainer.getCustomCmd())
-                            .withNetworkMode(customNetwork.getName())
                             .exec();
+
+
+                    dockerClient.connectToNetworkCmd()
+                        .withContainerId(containerResponse.getId())
+                        .withNetworkId(customNetwork.getName())
+                        .withContainerNetwork(containerNetwork)
+                        .exec();
 
                     dockerClient.startContainerCmd(containerResponse.getId()).exec();
 

@@ -69,18 +69,36 @@ public class DockerSyncServiceImpl implements DockerSyncService {
     private static final String DEFAULT_BRIDGE_NETWORK_NAME = "bridge";
 
 
+    /**
+     * Synchronizes Docker resources (networks, volumes, and containers) with the provided blueprint data.
+     *
+     * <p>This method performs the following operations for each host in the blueprint data:</p>
+     * <ol>
+     *   <li>Attempts to establish a connection with the Docker daemon on the local or remote host and verifies it via a ping request.</li>
+     *   <li>Removes all non-default Docker resources (networks, containers, volumes) from the host.</li>
+     *   <li>Synchronizes networks, ensuring that any required custom networks are created.</li>
+     *   <li>Synchronizes volumes by creating any new volumes specified in the blueprint data.</li>
+     *   <li>Synchronizes containers by pulling necessary images (if not already available), configuring, and starting the containers in the target network.</li>
+     * </ol>
+     *
+     * <p>Each operation produces results that are returned as a list of status maps, with each map providing details
+     * about the status (e.g., success or failure) of container synchronization.</p>
+     *
+     * @param processedData the blueprint data containing configuration for networks, volumes, and containers
+     * @return a list of maps containing the results of the synchronization for each container.
+     *         Each map includes the container name, status (success or failure), and any associated messages.
+     * @throws CustomException if any Docker-related error occurs during synchronization
+     */
     @Override
     public List<Map<String, Object>> syncDockerWithBlueprintData(ProcessedData processedData) {
 
         List<Map<String, Object>> containerResults = new ArrayList<>();
 
         try {
-            // 1. host list 추출
             DockerClient dockerClient;
             List<CustomHost> customHosts = processedData.getCustomHost();
 
             for (CustomHost customHost : customHosts) {
-                //    2. local, remote 연결 시도(`/_ping`), 확인
                 if (!customHost.getIsRemote()) {
                     testDockerPing(LOCAL_HOST_IP, DOCKER_DAEMON_PORT);
                     dockerClient = dockerClientFactory.createLocalDockerClient();
@@ -89,24 +107,12 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                     dockerClient = dockerClientFactory.createRemoteDockerClient(customHost.getIp());
                 }
 
-                // 3. default로 생성되는것들은 제외하고 local, remote의 모든 network, container, volume 삭제
-                //  network - `none` , `bridge`, `customHost` , `goraebab_network`
-                //  container - `goraebab-backend`
                 removeAllContainers(dockerClient);
                 removeAllNetworks(dockerClient);
                 removeAllVolumes(dockerClient);
 
-                // 4. network list 추출
-                // default network`인지 확인하고 만약 아니라면 생성
                 syncNetworks(dockerClient, customHost.getCustomNetwork());
-
-                // 5. volume list 추출
-                // volume 생성
                 syncVolumes(dockerClient, customHost.getCustomVolume());
-
-                // 6. container list 추출
-                // 필요한 image를 확인하고 만약 image를 가지고 있지 않다면 image pull
-                // 타겟 네트워크에 container 실행
                 List<Map<String, Object>> syncResult = syncContainers(dockerClient, customHost.getCustomNetwork());
                 containerResults.addAll(syncResult);
 
@@ -143,7 +149,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
      *
      * @param dockerClient connection with Docker daemon
      * @param customNetworkList network list to be executed
-     * @throws DockerException if dockerClient method fails
+     * @throws DockerException if any Docker-related operation fails
      */
     private void syncNetworks(DockerClient dockerClient, List<CustomNetwork> customNetworkList) throws DockerException {
 
@@ -155,7 +161,6 @@ public class DockerSyncServiceImpl implements DockerSyncService {
             boolean networkExists = existingNetworks.stream()
                     .anyMatch(existingNetwork -> existingNetwork.getName().equals(customNetworkName));
 
-            // default network 가 아닐 시 생성
             if (!networkExists) {
                 List<Config> ipamConfigList = new ArrayList<>();
 
@@ -180,7 +185,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
      *
      * @param dockerClient connection with Docker daemon
      * @param customVolumeList volume list to be executed
-     * @throws DockerException if dockerClient method fails
+     * @throws DockerException if any Docker-related operation fails
      */
     private void syncVolumes(DockerClient dockerClient, List<CustomVolume> customVolumeList) throws DockerException {
 
@@ -203,15 +208,22 @@ public class DockerSyncServiceImpl implements DockerSyncService {
     }
 
     /**
-     * Create containers following processes
-     * 1. Check whether image exists.
-     * 2. If image not exists, pull image from docker hub.
-     * 3. After setting ports, volumes, mounts, create containers
+     * Creates containers by performing the following steps:
+     * <ol>
+     *   <li>Check if the required Docker image exists on the host.</li>
+     *   <li>If the image does not exist, pull the image from Docker Hub.</li>
+     *   <li>Set up ports, volumes, and mounts, and then create the containers.</li>
+     * </ol>
      *
-     * @param dockerClient connection with Docker daemon
-     * @param customNetworkList container list to be executed
-     * @throws DockerException if dockerClient method fails
-     * @throws InterruptedException if pulling images fails or delays
+     * <p>This method ensures that each container is properly configured before starting.
+     * If any step fails, an appropriate exception is thrown.</p>
+     *
+     * @param dockerClient the connection to the Docker daemon used to manage containers
+     * @param customNetworkList the list of networks containing container configurations to be executed
+     * @return a list of maps containing the results of the container creation process,
+     *         including the container name, status, and any messages.
+     * @throws DockerException if any Docker-related operation fails
+     * @throws InterruptedException if pulling images is interrupted or delayed
      */
     private List<Map<String, Object>> syncContainers(DockerClient dockerClient, List<CustomNetwork> customNetworkList)
             throws DockerException, InterruptedException {
@@ -300,7 +312,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
      * Remove all containers except Docker default containers and Goraebab custom containers
      *
      * @param dockerClient connection with Docker daemon
-     * @throws DockerException if dockerClient method fails
+     * @throws DockerException if any Docker-related operation fails
      */
     private void removeAllContainers(DockerClient dockerClient) throws DockerException{
         List<Container> containerList = dockerClient.listContainersCmd().withShowAll(true).exec();
@@ -329,7 +341,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
      * Remove all networks except Docker default networks and Goraebab custom network
      *
      * @param dockerClient connection with Docker daemon
-     * @throws DockerException if dockerClient method fails
+     * @throws DockerException if any Docker-related operation fails
      */
     private void removeAllNetworks(DockerClient dockerClient) throws DockerException{
         List<Network> networkList = dockerClient.listNetworksCmd().exec();
@@ -347,7 +359,7 @@ public class DockerSyncServiceImpl implements DockerSyncService {
      * remove all volumes except volumes not in use
      *
      * @param dockerClient connection with Docker daemon
-     * @throws DockerException if dockerClient method fails
+     * @throws DockerException if any Docker-related operation fails
      */
     private void removeAllVolumes(DockerClient dockerClient) throws DockerException{
         List<InspectVolumeResponse> volumeList = dockerClient.listVolumesCmd().exec().getVolumes();

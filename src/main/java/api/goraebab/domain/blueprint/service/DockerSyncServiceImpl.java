@@ -27,6 +27,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of the {@link DockerSyncService} interface.
+ * <p>
+ * This class uses DockerClient to manage Docker resources locally or remotely. It performs
+ * operations such as:
+ * <ul>
+ *   <li>Removing existing Docker resources (containers, networks, volumes).</li>
+ *   <li>Synchronizing networks, volumes, and containers with the provided blueprint data.</li>
+ *   <li>Managing Docker images and ensuring the correct state of containers.</li>
+ * </ul>
+ *
+ * @author whitem4rk
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -107,6 +121,12 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         return containerResults;
     }
 
+    /**
+     * Check whether input networks settings are valid considering NAME, SUBNET, IP
+     *
+     * @param customNetworkList network list to be executed
+     * @throws CustomException if network settings are invalid
+     */
     private void customNetworkValidationCheck(List<CustomNetwork> customNetworkList) {
         for (CustomNetwork customNetwork : customNetworkList) {
             for (CustomConfig config : customNetwork.getCustomIpam().getCustomConfig()) {
@@ -118,6 +138,13 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         }
     }
 
+    /**
+     * Existing networks are left unchanged, and only newly added networks are created.
+     *
+     * @param dockerClient connection with Docker daemon
+     * @param customNetworkList network list to be executed
+     * @throws DockerException if dockerClient method fails
+     */
     private void syncNetworks(DockerClient dockerClient, List<CustomNetwork> customNetworkList) throws DockerException {
 
         customNetworkValidationCheck(customNetworkList);
@@ -148,6 +175,13 @@ public class DockerSyncServiceImpl implements DockerSyncService {
 
     }
 
+    /**
+     * Existing volumes are left unchanged, and only newly added volumes are created.
+     *
+     * @param dockerClient connection with Docker daemon
+     * @param customVolumeList volume list to be executed
+     * @throws DockerException if dockerClient method fails
+     */
     private void syncVolumes(DockerClient dockerClient, List<CustomVolume> customVolumeList) throws DockerException {
 
         List<InspectVolumeResponse> existingVolumes = dockerClient.listVolumesCmd().exec().getVolumes();
@@ -155,7 +189,6 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         for (CustomVolume customVolume : customVolumeList) {
             String volumeName = customVolume.getName();
 
-            // 볼륨이 이미 존재하는지 확인
             boolean volumeExists = existingVolumes.stream()
                     .anyMatch(existingVolume -> existingVolume.getName().equals(volumeName));
 
@@ -169,6 +202,17 @@ public class DockerSyncServiceImpl implements DockerSyncService {
 
     }
 
+    /**
+     * Create containers following processes
+     * 1. Check whether image exists.
+     * 2. If image not exists, pull image from docker hub.
+     * 3. After setting ports, volumes, mounts, create containers
+     *
+     * @param dockerClient connection with Docker daemon
+     * @param customNetworkList container list to be executed
+     * @throws DockerException if dockerClient method fails
+     * @throws InterruptedException if pulling images fails or delays
+     */
     private List<Map<String, Object>> syncContainers(DockerClient dockerClient, List<CustomNetwork> customNetworkList)
             throws DockerException, InterruptedException {
 
@@ -184,20 +228,16 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                     String imageName = customContainer.getCustomImage().getName();
                     String tag = customContainer.getCustomImage().getTag();
 
-                    // 이미지가 존재하는지 확인
                     try {
                         dockerClient.inspectImageCmd(imageName).exec();
                     } catch (NotFoundException e) {
-                        // 이미지가 없으면 pull
                         dockerClient.pullImageCmd(imageName).withTag(tag).start().awaitCompletion();
                     }
 
-                    // 포트 바인딩 설정
                     List<PortBinding> portBindings = customContainer.getCustomPorts().stream()
                             .map(customPort -> PortBinding.parse(customPort.getPublicPort() + ":" + customPort.getPrivatePort()))
                             .collect(Collectors.toList());
 
-                    // 마운트 설정
                     List<Bind> binds = new ArrayList<>();
                     List<Mount> mounts = new ArrayList<>();
 
@@ -216,7 +256,6 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                         }
                     });
 
-                    // 포트 바인딩 및 볼륨 바인딩 설정
                     HostConfig hostConfig = HostConfig.newHostConfig()
                             .withPortBindings(portBindings)
                             .withBinds(binds)
@@ -224,9 +263,8 @@ public class DockerSyncServiceImpl implements DockerSyncService {
 
                     ContainerNetwork containerNetwork = new ContainerNetwork()
                         .withIpamConfig(new ContainerNetwork.Ipam())
-                        .withIpv4Address(customContainer.getCustomNetworkSettings().getIpAddress()); // IP 주소 설정
+                        .withIpv4Address(customContainer.getCustomNetworkSettings().getIpAddress());
 
-                    // 컨테이너 생성
                     CreateContainerResponse containerResponse = dockerClient.createContainerCmd(imageName)
                             .withName(containerName)
                             .withHostConfig(hostConfig)
@@ -258,6 +296,12 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         return containerResults;
     }
 
+    /**
+     * Remove all containers except Docker default containers and Goraebab custom containers
+     *
+     * @param dockerClient connection with Docker daemon
+     * @throws DockerException if dockerClient method fails
+     */
     private void removeAllContainers(DockerClient dockerClient) throws DockerException{
         List<Container> containerList = dockerClient.listContainersCmd().withShowAll(true).exec();
 
@@ -281,6 +325,12 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         }
     }
 
+    /**
+     * Remove all networks except Docker default networks and Goraebab custom network
+     *
+     * @param dockerClient connection with Docker daemon
+     * @throws DockerException if dockerClient method fails
+     */
     private void removeAllNetworks(DockerClient dockerClient) throws DockerException{
         List<Network> networkList = dockerClient.listNetworksCmd().exec();
 
@@ -292,10 +342,16 @@ public class DockerSyncServiceImpl implements DockerSyncService {
         }
     }
 
+    /**
+     * Retrieve all containers in execution and check whether volume is used by containers and
+     * remove all volumes except volumes not in use
+     *
+     * @param dockerClient connection with Docker daemon
+     * @throws DockerException if dockerClient method fails
+     */
     private void removeAllVolumes(DockerClient dockerClient) throws DockerException{
         List<InspectVolumeResponse> volumeList = dockerClient.listVolumesCmd().exec().getVolumes();
 
-        // 사용중인 볼륨 목록 가져오기 (컨테이너 -> 볼륨)
         List<Container> runningContainers = dockerClient.listContainersCmd().exec();
         Set<String> usedVolumes = runningContainers.stream()
                 .map(Container::getId)
@@ -306,7 +362,6 @@ public class DockerSyncServiceImpl implements DockerSyncService {
                 })
                 .collect(Collectors.toSet());
 
-        // 사용중이지 않은 볼륨 삭제
         for (InspectVolumeResponse volume : volumeList) {
             String volumeName = volume.getName();
             if (!usedVolumes.contains(volumeName)) {

@@ -22,6 +22,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Implementation of the {@link BlueprintService} interface.
+ * This service interacts with the database using repositories and synchronizes data with Docker
+ * through {@link DockerSyncServiceImpl}.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class BlueprintServiceImpl implements BlueprintService {
@@ -72,6 +80,14 @@ public class BlueprintServiceImpl implements BlueprintService {
         return BlueprintMapper.INSTANCE.toBlueprintResDto(blueprint);
     }
 
+    /**
+     * Saves a new blueprint and synchronizes it with Docker.
+     *
+     * @param storageId the ID of  the storage
+     * @param blueprintReqDto the data of the blueprint to be saved, represented by {@link BlueprintReqDto}
+     * @return the result of the synchronization, represented by {@link SyncResultDto}
+     * @throws CustomException if saving or synchronization fails.
+     */
     @Override
     @Transactional
     public SyncResultDto saveBlueprint(Long storageId, BlueprintReqDto blueprintReqDto) {

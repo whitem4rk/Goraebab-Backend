@@ -1,6 +1,5 @@
 package api.goraebab.domain.blueprint.dto;
 
-import api.goraebab.domain.blueprint.dockerObject.CustomHost;
 import api.goraebab.domain.blueprint.dockerObject.ProcessedData;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -10,6 +9,13 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Response DTO which client request list of blueprints.
+ * This DTO only contains necessary information.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ */
 @Getter
 @Setter
 @AllArgsConstructor

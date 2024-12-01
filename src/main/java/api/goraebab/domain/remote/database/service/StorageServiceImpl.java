@@ -18,6 +18,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service implementation for managing storage entities and their operations.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class StorageServiceImpl implements StorageService {
@@ -39,6 +45,16 @@ public class StorageServiceImpl implements StorageService {
     }
   }
 
+  /**
+   * Connects to a storage system using the provided configuration and saves the storage information to the repository.
+   *
+   * <p>This method validates the storage configuration by attempting to execute a query on the target storage.
+   * If the connection is successful, the storage details are mapped to a {@link Storage} entity and persisted in the repository.</p>
+   *
+   * @param storageReqDto the {@link StorageReqDto} containing the storage configuration details, such as host, port, username, and password.
+   * @throws CustomException if the connection fails ({@link ErrorCode#CONNECTION_FAILED}).
+   * @see ConnectionUtil
+   */
   @Override
   @Transactional
   public void connectStorage(StorageReqDto storageReqDto) {
@@ -64,6 +80,13 @@ public class StorageServiceImpl implements StorageService {
       }
     }
 
+  /**
+   * Copies all blueprints which are stored in target storage to local storage.
+   * This functionality allows users to import blueprints created on another server into the currently active server.
+   *
+   * @param storageId the ID of the storage whose blueprints are to be copied.
+   * @throws CustomException if the storage is not found ({@link ErrorCode#NOT_FOUND_VALUE}) or if the copy operation fails ({@link ErrorCode#COPY_FAILED}).
+   */
   @Override
   @Transactional
   public void copyStorage(Long storageId) {

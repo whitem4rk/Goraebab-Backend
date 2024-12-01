@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
  * From CustomHost class to leaf, all the fields are following docker daemon API request arguments.
  * If you add new features, check API documents and follow JSON key and value format.
  * Also, add "custom" prefix and change key format using @JsonProperty
+ *
+ * @author whitem4rk
+ * @version 1.0
  */
 @Getter
 @NoArgsConstructor

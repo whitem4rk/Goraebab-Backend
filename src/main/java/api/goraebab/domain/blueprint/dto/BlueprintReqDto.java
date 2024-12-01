@@ -9,6 +9,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Request DTO which Client sends when synchronize Docker with host.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ */
 @Getter
 @NoArgsConstructor
 public class BlueprintReqDto {

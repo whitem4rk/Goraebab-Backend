@@ -8,6 +8,14 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Response DTO which client request details of blueprint.
+ * This DTO contains DBMS settings which should not be revealed.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ * @see StorageResDto
+ */
 @Getter
 @Setter
 @NoArgsConstructor

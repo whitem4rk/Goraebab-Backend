@@ -12,6 +12,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entity class representing a Daemon, which typically refers to a background process running on a
+ * specific host and port with a given name. This class is mapped to the "daemon" table in the
+ * database.
+ *
+ * <p>This class extends {@code BaseEntity}, which may include common fields like
+ * creation and update timestamps.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ * @see BaseEntity
+ */
 @Getter
 @Entity
 @Table(name = "daemon")

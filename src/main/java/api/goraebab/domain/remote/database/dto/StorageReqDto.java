@@ -13,6 +13,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Request DTO which client sends when connect to DBMS.
+ * Strict validation check is required.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ * @see DBMS
+ */
 @Getter
 @NoArgsConstructor
 public class StorageReqDto {

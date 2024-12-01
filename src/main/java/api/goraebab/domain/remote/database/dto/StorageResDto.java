@@ -6,6 +6,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Response DTO which client request details of connected DBMS.
+ * Password must not be contained.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ * @see DBMS
+ */
 @Getter
 @NoArgsConstructor
 @Schema(description = "Represents the storage info.")

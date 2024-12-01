@@ -5,6 +5,20 @@ import lombok.Getter;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Custom exception class for handling application-specific errors.
+ *
+ * <p>This exception extends {@link RuntimeException}, allowing it to be used for unchecked exceptions.
+ * It includes additional fields for capturing detailed information about the error.
+ *
+ * <p>Provides multiple constructors for different use cases, including custom error messages,
+ * nested exceptions, and additional metadata.</p>
+ *
+ * @author whitem4rk
+ * @version 1.0
+ * @see RuntimeException
+ * @see ErrorCode
+ */
 @Getter
 public class CustomException extends RuntimeException {
 

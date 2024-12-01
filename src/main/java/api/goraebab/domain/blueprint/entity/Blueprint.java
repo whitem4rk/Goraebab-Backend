@@ -45,8 +45,8 @@ public class Blueprint extends BaseEntity {
   /**
    * Modify.
    *
-   * @param name the name
-   * @param data the data
+   * @param name the blueprint name
+   * @param data the blueprint JSON format with escape handling applied.
    */
   public void modify(String name, String data) {
     if (name != null) {
@@ -60,8 +60,8 @@ public class Blueprint extends BaseEntity {
   /**
    * Constructs a new instance
    *
-   * @param name     the name of the blueprint
-   * @param data     the raw data of the blueprint in JSON format
+   * @param name     the blueprint name
+   * @param data     the blueprint JSON format with escape handling applied.
    * @param isRemote whether the blueprint is copied from remote database
    * @param storage  the storage to be stored
    */

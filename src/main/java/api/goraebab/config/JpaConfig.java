@@ -14,6 +14,28 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+/**
+ * Configuration class for JPA and database connection setup.
+ *
+ * <p>This class configures database-related properties, including dialect detection based on the
+ * {@code spring.datasource.url}, and provides a {@link DataSource} bean for database access.</p>
+ *
+ * <p>Additionally, this configuration enables JPA auditing, allowing automatic management of entity audit fields.</p>
+ *
+ * <p>Supported DBMS dialects include:</p>
+ * <ul>
+ *     <li>MySQL</li>
+ *     <li>MariaDB</li>
+ *     <li>PostgreSQL</li>
+ *     <li>Oracle</li>
+ *     <li>SQL Server</li>
+ * </ul>
+ *
+ * @author whitem4rk
+ * @version 1.0
+ * @see JpaProperties
+ * @see DataSource
+ */
 @Configuration
 @EnableJpaAuditing
 public class JpaConfig {

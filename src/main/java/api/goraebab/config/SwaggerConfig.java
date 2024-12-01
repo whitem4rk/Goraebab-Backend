@@ -6,6 +6,18 @@ import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration class for Swagger/OpenAPI documentation.
+ *
+ * <p>This configuration sets up the OpenAPI documentation for the application, providing metadata about
+ * the API such as its title, description, and version. The documentation helps developers understand
+ * and interact with the API effectively.</p>
+ *
+ * @author whitem4rk
+ * @version 1.0
+ * @see OpenAPI
+ * @see Info
+ */
 @Configuration
 public class SwaggerConfig {
 

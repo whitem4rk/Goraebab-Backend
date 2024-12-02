@@ -7,7 +7,8 @@ import java.util.List;
 /**
  * Service interface for managing storage entities and their operations.
  *
- * <p>This interface provides methods for retrieving, connecting, deleting, and copying storage configurations.</p>
+ * <p>This interface provides methods for retrieving, connecting, deleting, and copying storage
+ * configurations.
  *
  * @author whitem4rk
  * @version 1.0
@@ -21,5 +22,4 @@ public interface StorageService {
   void deleteStorage(Long storageId);
 
   void copyStorage(Long storageId);
-
 }

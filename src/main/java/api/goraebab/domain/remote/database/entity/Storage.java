@@ -1,6 +1,5 @@
 package api.goraebab.domain.remote.database.entity;
 
-
 import api.goraebab.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,8 +17,8 @@ import lombok.NoArgsConstructor;
 /**
  * Represents a storage entity that contains information about a database connection.
  *
- * <p>Instances of this class are typically used to persist and retrieve storage configurations
- * from the database.</p>
+ * <p>Instances of this class are typically used to persist and retrieve storage configurations from
+ * the database.
  *
  * @author whitem4rk
  * @version 1.0
@@ -65,8 +64,8 @@ public class Storage extends BaseEntity {
    * @param password the password for database authentication.
    */
   @Builder
-  public Storage(String host, Integer port, DBMS dbms, String name, String username,
-      String password) {
+  public Storage(
+      String host, Integer port, DBMS dbms, String name, String username, String password) {
     this.host = host;
     this.port = port;
     this.dbms = dbms;
@@ -74,6 +73,4 @@ public class Storage extends BaseEntity {
     this.username = username;
     this.password = password;
   }
-
 }
-

@@ -19,11 +19,9 @@ public class CustomNetworkSettings {
 
   private String ipAddress;
 
-
   @Builder
   public CustomNetworkSettings(String gateway, String ipAddress) {
     this.gateway = gateway;
     this.ipAddress = ipAddress;
   }
-
 }

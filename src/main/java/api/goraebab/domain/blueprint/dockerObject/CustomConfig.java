@@ -21,5 +21,4 @@ public class CustomConfig {
   public CustomConfig(String subnet) {
     this.subnet = subnet;
   }
-
 }

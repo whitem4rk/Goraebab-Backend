@@ -20,10 +20,8 @@ public class CustomIpam {
   @JsonProperty("config")
   private List<CustomConfig> customConfig;
 
-
   @Builder
   public CustomIpam(List<CustomConfig> customConfig) {
     this.customConfig = customConfig;
   }
-
 }

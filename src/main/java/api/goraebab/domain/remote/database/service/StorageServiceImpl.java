@@ -46,12 +46,15 @@ public class StorageServiceImpl implements StorageService {
   }
 
   /**
-   * Connects to a storage system using the provided configuration and saves the storage information to the repository.
+   * Connects to a storage system using the provided configuration and saves the storage information
+   * to the repository.
    *
-   * <p>This method validates the storage configuration by attempting to execute a query on the target storage.
-   * If the connection is successful, the storage details are mapped to a {@link Storage} entity and persisted in the repository.</p>
+   * <p>This method validates the storage configuration by attempting to execute a query on the
+   * target storage. If the connection is successful, the storage details are mapped to a {@link
+   * Storage} entity and persisted in the repository.
    *
-   * @param storageReqDto the {@link StorageReqDto} containing the storage configuration details, such as host, port, username, and password.
+   * @param storageReqDto the {@link StorageReqDto} containing the storage configuration details,
+   *     such as host, port, username, and password.
    * @throws CustomException if the connection fails ({@link ErrorCode#CONNECTION_FAILED}).
    * @see ConnectionUtil
    */
@@ -72,41 +75,45 @@ public class StorageServiceImpl implements StorageService {
 
   @Override
   @Transactional
-    public void deleteStorage(Long storageId) {
-      try {
-        storageRepository.deleteById(storageId);
-      } catch (Exception e) {
-        throw new CustomException(ErrorCode.DELETE_FAILED);
-      }
+  public void deleteStorage(Long storageId) {
+    try {
+      storageRepository.deleteById(storageId);
+    } catch (Exception e) {
+      throw new CustomException(ErrorCode.DELETE_FAILED);
     }
+  }
 
   /**
-   * Copies all blueprints which are stored in target storage to local storage.
-   * This functionality allows users to import blueprints created on another server into the currently active server.
+   * Copies all blueprints which are stored in target storage to local storage. This functionality
+   * allows users to import blueprints created on another server into the currently active server.
    *
    * @param storageId the ID of the storage whose blueprints are to be copied.
-   * @throws CustomException if the storage is not found ({@link ErrorCode#NOT_FOUND_VALUE}) or if the copy operation fails ({@link ErrorCode#COPY_FAILED}).
+   * @throws CustomException if the storage is not found ({@link ErrorCode#NOT_FOUND_VALUE}) or if
+   *     the copy operation fails ({@link ErrorCode#COPY_FAILED}).
    */
   @Override
   @Transactional
   public void copyStorage(Long storageId) {
     try {
-      Storage storage = storageRepository.findById(storageId)
+      Storage storage =
+          storageRepository
+              .findById(storageId)
               .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
 
       DataSource dataSource = ConnectionUtil.createDataSource(storage);
       JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-      List<Blueprint> copiedData = jdbcTemplate.query(SELECT_ALL_BLUEPRINTS, new BlueprintRowMapper());
+      List<Blueprint> copiedData =
+          jdbcTemplate.query(SELECT_ALL_BLUEPRINTS, new BlueprintRowMapper());
 
-      copiedData.forEach(blueprint -> {
-        blueprint.setStorage(storage);
-        blueprint.setAsRemote();
-      });
+      copiedData.forEach(
+          blueprint -> {
+            blueprint.setStorage(storage);
+            blueprint.setAsRemote();
+          });
 
       blueprintRepository.saveAll(copiedData);
     } catch (Exception e) {
       throw new CustomException(ErrorCode.COPY_FAILED);
     }
   }
-
 }

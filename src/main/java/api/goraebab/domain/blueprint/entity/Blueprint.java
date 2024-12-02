@@ -27,8 +27,7 @@ public class Blueprint extends BaseEntity {
   @Column(nullable = false, columnDefinition = "json")
   private String data;
 
-  @Column
-  private Boolean isRemote = false;
+  @Column private Boolean isRemote = false;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "storage_id")
@@ -60,10 +59,10 @@ public class Blueprint extends BaseEntity {
   /**
    * Constructs a new instance
    *
-   * @param name     the blueprint name
-   * @param data     the blueprint JSON format with escape handling applied.
+   * @param name the blueprint name
+   * @param data the blueprint JSON format with escape handling applied.
    * @param isRemote whether the blueprint is copied from remote database
-   * @param storage  the storage to be stored
+   * @param storage the storage to be stored
    */
   @Builder
   public Blueprint(String name, String data, Boolean isRemote, Storage storage) {

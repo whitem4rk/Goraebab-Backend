@@ -21,12 +21,10 @@ public class CustomImage {
 
   private String tag;
 
-
   @Builder
   public CustomImage(String imageId, String name, String tag) {
     this.imageId = imageId;
     this.name = name;
     this.tag = tag;
   }
-
 }

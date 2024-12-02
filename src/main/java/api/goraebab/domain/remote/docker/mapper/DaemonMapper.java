@@ -11,7 +11,8 @@ import org.mapstruct.factory.Mappers;
 /**
  * Mapper interface for converting between {@link Daemon} entities and their corresponding DTOs.
  *
- * <p>This interface uses MapStruct to generate the implementation at compile time, ensuring efficient and type-safe mapping.</p>
+ * <p>This interface uses MapStruct to generate the implementation at compile time, ensuring
+ * efficient and type-safe mapping.
  *
  * @author whitem4rk
  * @version 1.0
@@ -27,5 +28,4 @@ public interface DaemonMapper {
   DaemonResDto entityToResDto(Daemon daemon);
 
   List<DaemonResDto> entityListToResDtoList(List<Daemon> daemonList);
-
 }

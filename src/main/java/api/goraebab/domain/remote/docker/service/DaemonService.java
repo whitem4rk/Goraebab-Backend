@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Service interface for managing daemon entities and their operations.
  *
- * <p>This interface provides methods for retrieving, connecting and deleting daemon configurations.</p>
+ * <p>This interface provides methods for retrieving, connecting and deleting daemon configurations.
  *
  * @author whitem4rk
  * @version 1.0

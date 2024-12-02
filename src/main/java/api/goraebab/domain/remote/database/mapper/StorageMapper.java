@@ -11,7 +11,7 @@ import org.mapstruct.factory.Mappers;
 /**
  * Mapper interface for converting between {@link Storage} entities and their corresponding DTOs.
  *
- * <p>This interface uses MapStruct for generating implementation code at compile time.</p>
+ * <p>This interface uses MapStruct for generating implementation code at compile time.
  *
  * @author whitem4rk
  * @version 1.0
@@ -27,5 +27,4 @@ public interface StorageMapper {
   StorageResDto entityToResDto(Storage storage);
 
   List<StorageResDto> entityListToResDtoList(List<Storage> storageList);
-
 }

@@ -9,5 +9,4 @@ public class EnumValidator implements ConstraintValidator<ValidEnum, Enum> {
   public boolean isValid(Enum value, ConstraintValidatorContext context) {
     return value != null;
   }
-
 }

@@ -17,8 +17,8 @@ import lombok.NoArgsConstructor;
  * specific host and port with a given name. This class is mapped to the "daemon" table in the
  * database.
  *
- * <p>This class extends {@code BaseEntity}, which may include common fields like
- * creation and update timestamps.
+ * <p>This class extends {@code BaseEntity}, which may include common fields like creation and
+ * update timestamps.
  *
  * @author whitem4rk
  * @version 1.0
@@ -49,5 +49,4 @@ public class Daemon extends BaseEntity {
     this.port = port;
     this.name = name;
   }
-
 }

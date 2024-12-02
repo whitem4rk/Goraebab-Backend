@@ -13,12 +13,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
- * Implementation of the {@link DaemonService} interface, providing business logic
- * for managing {@link Daemon} entities.
+ * Implementation of the {@link DaemonService} interface, providing business logic for managing
+ * {@link Daemon} entities.
  *
- * <p>This service handles operations such as retrieving all daemons, connecting a new daemon,
- * and deleting existing daemons. It interacts with the {@link DaemonRepository} for data persistence
- * and uses {@link DaemonMapper} for entity-DTO conversions.</p>
+ * <p>This service handles operations such as retrieving all daemons, connecting a new daemon, and
+ * deleting existing daemons. It interacts with the {@link DaemonRepository} for data persistence
+ * and uses {@link DaemonMapper} for entity-DTO conversions.
  *
  * @author whitem4rk
  * @version 1.0
@@ -43,16 +43,18 @@ public class DaemonServiceImpl implements DaemonService {
   /**
    * Connects to a daemon using the provided configuration and saves it in the repository.
    *
-   * <p>The method validates the connection to the daemon using {@link ConnectionUtil#testDockerPing},
-   * and if successful, maps the provided {@link DaemonReqDto} to a {@link Daemon} entity and saves it
-   * to the database.</p>
+   * <p>The method validates the connection to the daemon using {@link
+   * ConnectionUtil#testDockerPing}, and if successful, maps the provided {@link DaemonReqDto} to a
+   * {@link Daemon} entity and saves it to the database.
    *
    * @param daemonReqDto the {@link DaemonReqDto} containing the connection details for the daemon.
-   * @throws CustomException if the connection to the daemon fails ({@link ErrorCode#CONNECTION_FAILED}).
+   * @throws CustomException if the connection to the daemon fails ({@link
+   *     ErrorCode#CONNECTION_FAILED}).
    */
   @Override
   public void connectDaemon(DaemonReqDto daemonReqDto) {
-    boolean connected = ConnectionUtil.testDockerPing(daemonReqDto.getHost(), daemonReqDto.getPort());
+    boolean connected =
+        ConnectionUtil.testDockerPing(daemonReqDto.getHost(), daemonReqDto.getPort());
     if (connected) {
       Daemon daemon = DaemonMapper.INSTANCE.reqDtoToEntity(daemonReqDto);
       daemonRepository.save(daemon);
@@ -69,5 +71,4 @@ public class DaemonServiceImpl implements DaemonService {
       throw new CustomException(ErrorCode.DELETE_FAILED);
     }
   }
-
 }

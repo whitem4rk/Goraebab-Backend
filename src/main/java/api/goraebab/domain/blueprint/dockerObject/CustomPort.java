@@ -19,11 +19,9 @@ public class CustomPort {
 
   private Integer publicPort;
 
-
   @Builder
   public CustomPort(int privatePort, int publicPort) {
     this.privatePort = privatePort;
     this.publicPort = publicPort;
   }
-
 }

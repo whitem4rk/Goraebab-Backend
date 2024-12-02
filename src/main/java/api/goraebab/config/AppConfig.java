@@ -7,8 +7,8 @@ import org.springframework.web.client.RestClient;
 /**
  * Configuration class for application-level beans.
  *
- * <p>This class defines beans that are required across the application, ensuring centralized management and
- * reusability of these components.</p>
+ * <p>This class defines beans that are required across the application, ensuring centralized
+ * management and reusability of these components.
  *
  * @author whitem4rk
  * @version 1.0
@@ -26,5 +26,4 @@ public class AppConfig {
   public RestClient restClient() {
     return RestClient.create();
   }
-
 }

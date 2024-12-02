@@ -27,7 +27,6 @@ public class DaemonResDto {
   @Schema(description = "The name of the Docker daemon.", example = "Gorae's Docker daemon")
   private String name;
 
-
   @Builder
   public DaemonResDto(Long daemonId, String host, Integer port, String name) {
     this.daemonId = daemonId;
@@ -35,5 +34,4 @@ public class DaemonResDto {
     this.port = port;
     this.name = name;
   }
-
 }

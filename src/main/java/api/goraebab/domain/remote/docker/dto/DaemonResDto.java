@@ -5,6 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Response DTO which client request list of Docker daemon connections.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ */
 @Getter
 @NoArgsConstructor
 public class DaemonResDto {

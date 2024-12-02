@@ -5,6 +5,12 @@ import api.goraebab.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Represents a blueprint entity with information.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ */
 @Getter
 @Entity
 @Table(name = "blueprint")
@@ -35,6 +41,12 @@ public class Blueprint extends BaseEntity {
     this.isRemote = true;
   }
 
+  /**
+   * Modify.
+   *
+   * @param name the blueprint name
+   * @param data the blueprint JSON format with escape handling applied.
+   */
   public void modify(String name, String data) {
     if (name != null) {
       this.name = name;
@@ -44,6 +56,14 @@ public class Blueprint extends BaseEntity {
     }
   }
 
+  /**
+   * Constructs a new instance
+   *
+   * @param name the blueprint name
+   * @param data the blueprint JSON format with escape handling applied.
+   * @param isRemote whether the blueprint is copied from remote database
+   * @param storage the storage to be stored
+   */
   @Builder
   public Blueprint(String name, String data, Boolean isRemote, Storage storage) {
     this.name = name;

@@ -10,6 +10,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Request DTO which Client sends when connect to remote Docker daemon
+ *
+ * @author whitem4rk
+ * @version 1.0
+ */
 @Getter
 @NoArgsConstructor
 public class DaemonReqDto {

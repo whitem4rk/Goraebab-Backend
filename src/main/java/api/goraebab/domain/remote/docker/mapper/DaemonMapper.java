@@ -8,6 +8,15 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+/**
+ * Mapper interface for converting between {@link Daemon} entities and their corresponding DTOs.
+ *
+ * <p>This interface uses MapStruct to generate the implementation at compile time, ensuring
+ * efficient and type-safe mapping.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ */
 @Mapper
 public interface DaemonMapper {
 

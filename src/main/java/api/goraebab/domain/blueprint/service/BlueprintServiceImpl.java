@@ -4,6 +4,7 @@ import api.goraebab.domain.blueprint.dockerObject.ProcessedData;
 import api.goraebab.domain.blueprint.dto.BlueprintReqDto;
 import api.goraebab.domain.blueprint.dto.BlueprintResDto;
 import api.goraebab.domain.blueprint.dto.BlueprintsResDto;
+import api.goraebab.domain.blueprint.dto.SyncResultDto;
 import api.goraebab.domain.blueprint.entity.Blueprint;
 import api.goraebab.domain.blueprint.mapper.BlueprintMapper;
 import api.goraebab.domain.blueprint.repository.BlueprintRepository;
@@ -19,6 +20,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Implementation of the {@link BlueprintService} interface. This service interacts with the
+ * database using repositories and synchronizes data with Docker through {@link
+ * DockerSyncServiceImpl}.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class BlueprintServiceImpl implements BlueprintService {
@@ -27,6 +36,11 @@ public class BlueprintServiceImpl implements BlueprintService {
   private final StorageRepository storageRepository;
   private final DockerSyncServiceImpl dockerSyncService;
   private final ObjectMapper objectMapper;
+  private static final String CONTAINER_SUCCESS = "success";
+  private static final String CONTAINER_FAILED = "failed";
+  private static final String FAIL_TO_CREATE_MESSAGE = "Failed to create some containers";
+  private static final String FAIL_TO_UPDATE_MESSAGE = "Failed to update some containers";
+  private static final String STATUS_KEY = "status";
 
   @Override
   @Transactional(readOnly = true)
@@ -65,98 +79,102 @@ public class BlueprintServiceImpl implements BlueprintService {
     return BlueprintMapper.INSTANCE.toBlueprintResDto(blueprint);
   }
 
+  /**
+   * Saves a new blueprint and synchronizes it with Docker.
+   *
+   * @param storageId the ID of the storage
+   * @param blueprintReqDto the data of the blueprint to be saved, represented by {@link
+   *     BlueprintReqDto}
+   * @return the result of the synchronization, represented by {@link SyncResultDto}
+   * @throws CustomException if saving or synchronization fails.
+   */
   @Override
   @Transactional
-  public void saveBlueprint(Long storageId, BlueprintReqDto blueprintReqDto) {
-    try {
-      Storage storage = null;
+  public SyncResultDto saveBlueprint(Long storageId, BlueprintReqDto blueprintReqDto) {
+    Storage storage = null;
 
-      if (storageId != null) {
-        storage =
-            storageRepository
-                .findById(storageId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
-      }
+    if (storageId != null) {
+      storage =
+          storageRepository
+              .findById(storageId)
+              .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+    }
 
-      String processedData = convertProcessedDataToJson(blueprintReqDto.getProcessedData());
+    String processedData = convertProcessedDataToJson(blueprintReqDto.getProcessedData());
 
-      Blueprint blueprint =
-          Blueprint.builder()
-              .name(blueprintReqDto.getBlueprintName())
-              .data(processedData)
-              .isRemote(false)
-              .storage(storage)
-              .build();
+    Blueprint blueprint =
+        Blueprint.builder()
+            .name(blueprintReqDto.getBlueprintName())
+            .data(processedData)
+            .isRemote(false)
+            .storage(storage)
+            .build();
 
-      blueprintRepository.save(blueprint);
+    blueprintRepository.save(blueprint);
 
-      List<Map<String, Object>> syncResults =
-          dockerSyncService.syncDockerWithBlueprintData(blueprintReqDto.getProcessedData());
+    List<Map<String, Object>> syncResults =
+        dockerSyncService.syncDockerWithBlueprintData(blueprintReqDto.getProcessedData());
 
-      List<Map<String, Object>> failedContainers =
-          syncResults.stream()
-              .filter(result -> "failed".equals(result.get("status")))
-              .collect(Collectors.toList());
+    List<Map<String, Object>> failedContainers =
+        syncResults.stream()
+            .filter(result -> CONTAINER_FAILED.equals(result.get(STATUS_KEY)))
+            .collect(Collectors.toList());
 
-      List<Map<String, Object>> succeededContainers =
-          syncResults.stream()
-              .filter(result -> "success".equals(result.get("status")))
-              .collect(Collectors.toList());
+    List<Map<String, Object>> succeededContainers =
+        syncResults.stream()
+            .filter(result -> CONTAINER_SUCCESS.equals(result.get(STATUS_KEY)))
+            .collect(Collectors.toList());
 
-      if (!failedContainers.isEmpty()) {
-        throw new CustomException(
-            ErrorCode.SAVE_FAILED,
-            "Failed to create some containers",
-            failedContainers,
-            succeededContainers);
-      }
-
-    } catch (CustomException e) {
-      throw e;
+    if (!failedContainers.isEmpty()) {
+      throw new CustomException(
+          ErrorCode.SAVE_FAILED, FAIL_TO_CREATE_MESSAGE, failedContainers, succeededContainers);
+    } else {
+      return SyncResultDto.builder()
+          .failedContainers(failedContainers)
+          .succeededContainers(succeededContainers)
+          .build();
     }
   }
 
   @Override
   @Transactional
-  public void modifyBlueprint(Long storageId, Long blueprintId, BlueprintReqDto blueprintReqDto) {
-    try {
-      Blueprint blueprint;
+  public SyncResultDto modifyBlueprint(
+      Long storageId, Long blueprintId, BlueprintReqDto blueprintReqDto) {
+    Blueprint blueprint;
 
-      if (storageId == null) {
-        blueprint =
-            blueprintRepository
-                .findById(blueprintId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
-      } else {
-        blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
-      }
+    if (storageId == null) {
+      blueprint =
+          blueprintRepository
+              .findById(blueprintId)
+              .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VALUE));
+    } else {
+      blueprint = findBlueprintByStorageAndId(storageId, blueprintId);
+    }
 
-      String processedData = convertProcessedDataToJson(blueprintReqDto.getProcessedData());
-      blueprint.modify(blueprintReqDto.getBlueprintName(), processedData);
+    String processedData = convertProcessedDataToJson(blueprintReqDto.getProcessedData());
+    blueprint.modify(blueprintReqDto.getBlueprintName(), processedData);
 
-      List<Map<String, Object>> syncResults =
-          dockerSyncService.syncDockerWithBlueprintData(blueprintReqDto.getProcessedData());
+    List<Map<String, Object>> syncResults =
+        dockerSyncService.syncDockerWithBlueprintData(blueprintReqDto.getProcessedData());
 
-      List<Map<String, Object>> failedContainers =
-          syncResults.stream()
-              .filter(result -> "failed".equals(result.get("status")))
-              .collect(Collectors.toList());
+    List<Map<String, Object>> failedContainers =
+        syncResults.stream()
+            .filter(result -> CONTAINER_FAILED.equals(result.get(STATUS_KEY)))
+            .collect(Collectors.toList());
 
-      List<Map<String, Object>> succeededContainers =
-          syncResults.stream()
-              .filter(result -> "success".equals(result.get("status")))
-              .collect(Collectors.toList());
+    List<Map<String, Object>> succeededContainers =
+        syncResults.stream()
+            .filter(result -> CONTAINER_SUCCESS.equals(result.get(STATUS_KEY)))
+            .collect(Collectors.toList());
 
-      if (!failedContainers.isEmpty()) {
-        throw new CustomException(
-            ErrorCode.MODIFY_FAILED,
-            "Failed to update some containers",
-            failedContainers,
-            succeededContainers);
-      }
-
-    } catch (CustomException e) {
-      throw e;
+    if (!failedContainers.isEmpty()) {
+      throw new CustomException(
+          ErrorCode.MODIFY_FAILED, FAIL_TO_UPDATE_MESSAGE, failedContainers, succeededContainers);
+    } else {
+      return SyncResultDto.builder()
+          .failedContainers(failedContainers)
+          .succeededContainers(succeededContainers)
+          .build();
     }
   }
 

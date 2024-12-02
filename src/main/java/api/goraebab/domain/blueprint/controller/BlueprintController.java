@@ -3,6 +3,7 @@ package api.goraebab.domain.blueprint.controller;
 import api.goraebab.domain.blueprint.dto.BlueprintReqDto;
 import api.goraebab.domain.blueprint.dto.BlueprintResDto;
 import api.goraebab.domain.blueprint.dto.BlueprintsResDto;
+import api.goraebab.domain.blueprint.dto.SyncResultDto;
 import api.goraebab.domain.blueprint.service.BlueprintServiceImpl;
 import api.goraebab.global.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -191,16 +192,16 @@ public class BlueprintController {
                             value =
                                 "{\"status\": \"CONTAINER_CREATION_FAILED\", \"code\": 500, \"message\": \"Failed to create the specified Docker container.\", \"errors\": []}")))
       })
-  public ResponseEntity<Void> saveBlueprint(
+  public ResponseEntity<SyncResultDto> saveBlueprint(
       @RequestParam(required = false)
           @Schema(
               description =
                   "The unique identifier of the storage. If null, the blueprint is considered to be in the local storage.")
           Long storageId,
       @RequestBody @Valid BlueprintReqDto blueprintReqDto) {
-    blueprintService.saveBlueprint(storageId, blueprintReqDto);
+    SyncResultDto syncResultDto = blueprintService.saveBlueprint(storageId, blueprintReqDto);
 
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(syncResultDto);
   }
 
   @Operation(
@@ -241,7 +242,7 @@ public class BlueprintController {
                             value =
                                 "{\"status\": \"MODIFY_FAILED\", \"code\": 500, \"message\": \"Failed to modify blueprint.\", \"errors\": []}")))
       })
-  public ResponseEntity<Void> modifyBlueprint(
+  public ResponseEntity<SyncResultDto> modifyBlueprint(
       @RequestParam(required = false)
           @Schema(
               description =
@@ -250,9 +251,10 @@ public class BlueprintController {
       @PathVariable @Schema(description = "The unique identifier of the blueprint.")
           Long blueprintId,
       @RequestBody @Valid BlueprintReqDto blueprintReqDto) {
-    blueprintService.modifyBlueprint(storageId, blueprintId, blueprintReqDto);
+    SyncResultDto syncResultDto =
+        blueprintService.modifyBlueprint(storageId, blueprintId, blueprintReqDto);
 
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(syncResultDto);
   }
 
   @Operation(

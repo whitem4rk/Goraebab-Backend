@@ -8,6 +8,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Response DTO which client request list of blueprints. This DTO only contains necessary
+ * information.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ */
 @Getter
 @Setter
 @AllArgsConstructor

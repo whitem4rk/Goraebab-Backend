@@ -4,6 +4,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * The type Custom mount.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ * @see ProcessedData
+ */
 @Getter
 @NoArgsConstructor
 public class CustomMount {

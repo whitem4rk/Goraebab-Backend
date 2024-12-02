@@ -16,6 +16,12 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
+/**
+ * Mapper interface for converting {@link Blueprint} entities to various DTOs and vice versa.
+ *
+ * @author whitem4rk
+ * @version 1.0
+ */
 @Mapper(uses = {StorageMapper.class})
 public interface BlueprintMapper {
 
@@ -33,6 +39,13 @@ public interface BlueprintMapper {
   @IterableMapping(elementTargetType = BlueprintsResDto.class)
   List<BlueprintsResDto> toBlueprintsResDtoList(List<Blueprint> blueprints);
 
+  /**
+   * Custom mapping method to convert a JSON string into a {@link ProcessedData} object.
+   *
+   * @param data the JSON string to convert
+   * @return the resulting {@link ProcessedData} object
+   * @throws CustomException if the JSON string cannot be parsed
+   */
   @Named("stringToHost")
   default ProcessedData stringToHost(String data) {
     try {
